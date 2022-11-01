@@ -24,6 +24,10 @@ Repositorio para el TFG UPNA (2022/2023)
 
 
 ### Configuraciones
+#### Entorno Python
+Modulos a instalar:
+> pip install pybluez2
+
 #### Compilar OpenCV con soporte para CUDA (GPU)
 Importante:
 Durante el tutorial se va a asumir que el directorio donde se va a trabajar es la siguiente:

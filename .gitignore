@@ -33,3 +33,7 @@
 
 Unity/
 Unity/*
+
+__pycache__/
+*.py[cod]
+*$py.class
