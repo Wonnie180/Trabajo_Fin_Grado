@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./Codigo/PC/Python/Comunicaciones",
+        "./Codigo/PC/Python/Leds"
+    ]
+}

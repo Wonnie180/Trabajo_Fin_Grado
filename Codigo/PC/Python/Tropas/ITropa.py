@@ -5,23 +5,23 @@ from abc import abstractmethod, ABCMeta
 sys.path.append(os.path.join(os.path.dirname(__file__),
                 ".."+os.path.sep+"Comunicaciones"))
 
+sys.path.append(os.path.join(os.path.dirname(__file__),
+                ".."+os.path.sep+"Leds"))
+
 from ICommunication import ICommunication
+from ILed import ILed
 
 class ITropa(metaclass=ABCMeta):
-    def __init__(self, id, communication: ICommunication):
-        self.communication = communication
+    id : int = 0
+    communication : ICommunication = None
+    color : ILed = None
+
+    def __init__(self, id : int, communication: ICommunication, color : ILed):
         self.id = id
-        self.rgb = (int, int, int)
+        self.communication = communication
+        self.color = color
         super().__init__()
-
-    @abstractmethod
-    def Set_Color(self, color):
-        pass
-
-    @abstractmethod
-    def Get_Color(self):
-        pass
-
+       
     @abstractmethod
     def Move_Forward(self):
         pass
