@@ -1,35 +1,31 @@
 from abc import abstractmethod, ABCMeta
 
-
-class IAruco(metaclass=ABCMeta):
-    current_id : int = 0
-    dictionary = None
-    img_size = 0
-    detector_parameters = None
-    image_source = None
+from Resolution import Resolution
 
 
-    def __init__(self):
+class IVideoSource(metaclass=ABCMeta):
+    
+    def __init__(self, resolution : Resolution):    
         super().__init__()
 
     @abstractmethod
-    def Generate_Dictionary(self):
+    def Get_Frame(self):
         pass
 
     @abstractmethod
-    def Obtain_Current_Id(self):
+    def Get_FPS(self):
         pass
 
     @abstractmethod
-    def Generate_new_Id(self):
+    def Set_FPS(self, fps):
         pass
 
     @abstractmethod
-    def Detect_Aruco(self):
+    def Set_Resolution(self, resolution):
         pass
 
     @abstractmethod
-    def Draw_Detected_Aruco(self):
+    def Get_Resolution(self):
         pass
 
 

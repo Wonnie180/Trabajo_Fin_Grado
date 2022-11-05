@@ -23,14 +23,7 @@ def main() -> None:
     [print(i.id, i.color.Get_RGB()) for i in Tropas_Azules]
     [print(i.id, i.color.Get_RGB()) for i in Tropas_Rojas]
 
-
-    # prueba.color.Set_RGB(100, 200, 300)
-    # print(prueba.color.Get_BGR())
-    # print(prueba.color.Get_RGB())
-    # # prueba.communication.Search_Devices()
-
-    # # print(prueba.communication.Get_Devices())
-    # print(prueba.id)
+    Tropas_Azules[0].communication.Search_Devices()
 
 if __name__ == '__main__':
     main()

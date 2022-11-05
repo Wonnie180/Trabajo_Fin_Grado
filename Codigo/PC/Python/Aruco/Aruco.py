@@ -9,16 +9,19 @@ if __name__ != '__main__':
 from IAruco import IAruco
 
 class Aruco(IAruco):
-    def Generate_Dictionary(self, dictionary = aruco.DICT_5X5_50):
+    img_size = 0
+
+    def Generate_Dictionary(self, img_size = 50, dictionary = aruco.DICT_4X4_50):
+        self.img_size = img_size
         self.dictionary = aruco.Dictionary_get(dictionary)
         self.current_id = -1
 
     def Obtain_Current_Id(self):
         return self.current_id
 
-    def Generate_new_Id(self, img_size = 500):
+    def Generate_new_Id(self):
         self.current_id += 1
-        return aruco.drawMarker(self.dictionary, self.current_id, img_size)
+        return aruco.drawMarker(self.dictionary, self.current_id, self.img_size)
         
     def Detect_Aruco(self):
         pass
@@ -35,6 +38,6 @@ if __name__ == '__main__':
     waitKey(0)
     destroyAllWindows()
 
-    imshow('frame', prueba.Generate_new_Id())
-    waitKey(0)
-    destroyAllWindows()
+    # imshow('frame', prueba.Generate_new_Id())
+    # waitKey(0)
+    # destroyAllWindows()

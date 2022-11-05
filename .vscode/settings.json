@@ -1,6 +1,9 @@
 {
     "python.analysis.extraPaths": [
         "./Codigo/PC/Python/Comunicaciones",
-        "./Codigo/PC/Python/Leds"
-    ]
+        "./Codigo/PC/Python/Leds",
+        "./Codigo/PC/Python/Patterns/Observer",
+        "./Codigo/PC/Python/Patterns"
+    ],
+    "python.formatting.provider": "black"
 }
