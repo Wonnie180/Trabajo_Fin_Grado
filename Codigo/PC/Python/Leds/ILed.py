@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABCMeta
+from pickletools import uint8
 
 
 class ILed(metaclass=ABCMeta):
@@ -6,7 +7,10 @@ class ILed(metaclass=ABCMeta):
     G : int = 0
     B : int = 0
 
-    def __init__(self):
+    def __init__(self, R:uint8, G:uint8, B:uint8):
+        self.R = R
+        self.G = G
+        self.B = B
         super().__init__()
 
     @abstractmethod
@@ -23,8 +27,4 @@ class ILed(metaclass=ABCMeta):
 
     @abstractmethod
     def Set_BGR(self, B :int, G:int, R:int):
-        pass
-   
-
-if __name__ == '__main__':
-    print("Hello")
+        pass   

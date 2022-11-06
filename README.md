@@ -26,7 +26,7 @@ Repositorio para el TFG UPNA (2022/2023)
 ### Configuraciones
 #### Entorno Python
 Modulos a instalar:
-> pip install pybluez2
+> pip install pybluez2 ndarray-listener-2.0.1 aioconsole
 
 #### Compilar OpenCV con soporte para CUDA (GPU)
 Importante:

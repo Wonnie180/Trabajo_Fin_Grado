@@ -1,129 +1,166 @@
-from asyncio import sleep
+# System Libraries
 import asyncio
-import time
+import aioconsole
+import cv2
+import numpy as np
+from threading import Thread
+from ndarray_listener import ndl
+from itertools import count
+from random import randrange, seed
+
+# Custom Libraries
+from Aruco.Aruco import Aruco
 from VideoSource.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
 from VideoSource.FakeVideo import FakeVideo
-
 from Leds.Led import Led
-from itertools import count
 
-import cv2
 
 current_id = count(1)
+aruco = Aruco()
+aruco.Generate_Dictionary()
+resolution = Resolution(800, 800)
+seed(0xDEADBEEF)
 
-refPt = []
-resolution = Resolution(600,600)
 
 def click_drag_callback(event, x, y, flags, param):
-    global refPt
-    frame = param[0]
-    resolution: Resolution = param[1]
-    imshow_title = param[2]
-
-    color = (255, 0, 0)
-    thickness = 5
+    videofake: FakeVideo = param[0]
 
     if event == cv2.EVENT_LBUTTONDOWN:
-        refPt = [(x, y)]
+        videofake.Add_Coordinate_Rectangle((x, y))
     elif event == cv2.EVENT_LBUTTONUP:
-        refPt.append((x, y))
-        if not resolution.Is_In_Bounds(x, y):
-            refPt = []
-            return
-
-        cv2.rectangle(frame, refPt[0], refPt[1], color, thickness)
-        # cv2.imshow(imshow_title, image)
-
+        videofake.Add_Coordinate_Rectangle((x, y))
     elif event == cv2.EVENT_RBUTTONUP:
-        refPt = []
-
-video = FakeVideo(resolution, click_drag_callback)
+        videofake.Remove_Coordinate_Rectangle()
 
 
-def Generar_Tropas(numero_Tropas, color=None):
-    Tropas = [
-        FakeTropa(
-            id=next(current_id),
-            communication=None,
-            color=Led(),
-            matrix=video.Get_Frame(),
-            pos_y=x % resolution.Get_Height(),
-            pos_x=x // resolution.Get_Width(),
-            size=50,
-        )
-        for x in range(numero_Tropas)
-    ]
+common_frame = ndl(
+    np.zeros([resolution.Get_Width(), resolution.Get_Width(), 3], dtype=np.uint8)
+)
+video = FakeVideo(resolution, common_frame, click_drag_callback)
 
-    if color is not None:
-        [i.color.Set_RGB(color[0], color[1], color[2]) for i in Tropas]
+async def ConsoleInput(tropas):
+    input_text = [""]
+    while not video.has_to_stop:
+        input_text = (await aioconsole.ainput("Comando: ")).split(" ")
 
-    return Tropas
+        command = input_text[0]
+        troop = int(input_text[1]) if len(input_text) > 1 else 0
+        reps = int(input_text[2]) if len(input_text) > 2 else 1
 
-
-async def moverTropas(tropa):
-
-    for number in range(200):
-        await asyncio.sleep(0.5)
-        video.Show_Video()
-        tropa.Move_Forward()
+        if command == "move_f":
+            for i in range(reps):
+                tropas[troop].Move_Forward()
+        elif command == "move_b":
+            for i in range(reps):
+                tropas[troop].Move_Backwards()
+        elif command == "turn_r":
+            for i in range(reps):
+                tropas[troop].Turn_Right()
+        elif command == "turn_l":
+            for i in range(reps):
+                tropas[troop].Turn_Left()
     return
 
 
-def main() -> None:
+acciones = []
 
-    # Tropas_Azules = Generar_Tropas(5, [0, 0, 200])
-    tropa = FakeTropa(
-        id=next(current_id),
-        communication=None,
-        color=Led(),
-        matrix=video.Get_Frame(),
-        pos_y=0 % resolution.Get_Height(),
-        pos_x=0 // resolution.Get_Width(),
-        size=50,
+
+def Generate_new_footprint(border_color=[255, 0, 0], border_size=2):
+    if border_size < 2:
+        border_size = 2
+
+    footprint_with_marco = cv2.copyMakeBorder(
+        cv2.cvtColor(aruco.Generate_new_Id(), cv2.COLOR_BGR2RGB),
+        top=border_size-1,
+        bottom=border_size-1,
+        left=border_size-1,
+        right=border_size-1,
+        borderType=cv2.BORDER_CONSTANT,
+        value=(0,0,0),
     )
-    # Tropas_Azules[4].Move_Forward()
+    footprint_with_marco[0:border_size-1,0:border_size-1] = border_color
 
-    print(video.Get_Frame())
+    return cv2.copyMakeBorder(
+        footprint_with_marco,
+        top=1,
+        bottom=1,
+        left=1,
+        right=1,
+        borderType=cv2.BORDER_CONSTANT,
+        value=border_color,
+    )
 
 
-def click_drag_callback(event, x, y, flags, param):
-    global refPt
-    frame = param[0]
-    resolution: Resolution = param[1]
-    imshow_title = param[2]
 
-    color = (255, 0, 0)
-    thickness = 5
 
-    if event == cv2.EVENT_LBUTTONDOWN:
-        refPt = [(x, y)]
-    elif event == cv2.EVENT_LBUTTONUP:
-        refPt.append((x, y))
-        if not resolution.Is_In_Bounds(x, y):
-            refPt = []
-            return
+possible_orientations = [0, 90, 180, 270]
+num_tropas = 2
 
-        cv2.rectangle(frame, refPt[0], refPt[1], color, thickness)
-        # cv2.imshow(imshow_title, image)
 
-    elif event == cv2.EVENT_RBUTTONUP:
-        refPt = []
+def main_console():
+    tropas = []
+    for i in range(num_tropas):
+        tropa = FakeTropa(
+            id=next(current_id),
+            communication=None,
+            color=Led(255, 0, 0),
+            matrix=video.Get_Frame(),
+            footprint=Generate_new_footprint(
+                border_color=Led(255, 0, 0).Get_RGB(), border_size=10
+            ),
+        )
+
+        random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
+        random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
+
+        tropa.Place_Tropa(random_x, random_y, 180)
+        tropas.append(tropa)
+    asyncio.run(ConsoleInput(tropas))
+
+
+async def randomMovements(tropas):
+    while not video.has_to_stop:
+        await asyncio.sleep(0.1)
+        tropa_Seleccionada = randrange(len(tropas))
+        movimiento_aleatorio = randrange(4)
+        if movimiento_aleatorio == 0:
+            tropas[tropa_Seleccionada].Move_Forward()
+        elif movimiento_aleatorio == 1:
+            tropas[tropa_Seleccionada].Move_Backwards()
+        elif movimiento_aleatorio == 2:
+            tropas[tropa_Seleccionada].Turn_Right()
+        elif movimiento_aleatorio == 3:
+            tropas[tropa_Seleccionada].Turn_Left()
+    return
+
+def main_random():
+    tropas = []
+    for i in range(num_tropas):
+        tropa = FakeTropa(
+            id=next(current_id),
+            communication=None,
+            color=Led(255, 0, 0),
+            matrix=video.Get_Frame(),
+            footprint=Generate_new_footprint(
+                border_color=Led(255, 0, 0).Get_RGB(), border_size=5
+            ),
+        )
+
+        random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
+        random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
+        random_orientation = possible_orientations[(randrange(4))]
+
+        tropa.Place_Tropa(random_x, random_y, random_orientation)
+        tropas.append(tropa)
+    asyncio.run(randomMovements(tropas))
 
 if __name__ == "__main__":
-    tropa = FakeTropa(
-        id=next(current_id),
-        communication=None,
-        color=Led(),
-        matrix=video.Get_Frame(),
-        pos_y=0 % resolution.Get_Height(),
-        pos_x=0 // resolution.Get_Width(),
-        size=50,
-    )
+    video_thread = video.start()
 
-    asyncio.run(moverTropas(tropa))
-    # loop = asyncio.get_event_loop()
-    # single = asyncio.gather(test(), moverTropas(tropa))
-    # loop.run_until_complete(single)
-
+    main_random()
+    exit()
+    thread = Thread(target=main_console)
+    thread.start()
+    thread.join()
 
