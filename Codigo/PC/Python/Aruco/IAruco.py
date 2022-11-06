@@ -9,6 +9,7 @@ class IAruco(metaclass=ABCMeta):
     image_source = None
 
 
+
     def __init__(self):
         super().__init__()
 
@@ -25,16 +26,10 @@ class IAruco(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def Detect_Aruco(self):
+    def Detect_Aruco(self, frame):
         pass
 
     @abstractmethod
-    def Draw_Detected_Aruco(self):
+    def Draw_Detected_Aruco(self, frame):
         pass
 
-
-if __name__ == '__main__':
-    print("Hello")
-    print("AAA")
-    print("BBB")
-    print("CCC")

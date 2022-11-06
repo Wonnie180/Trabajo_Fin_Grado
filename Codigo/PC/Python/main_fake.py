@@ -37,6 +37,7 @@ def click_drag_callback(event, x, y, flags, param):
 common_frame = ndl(
     np.zeros([resolution.Get_Width(), resolution.Get_Width(), 3], dtype=np.uint8)
 )
+
 video = FakeVideo(resolution, common_frame, click_drag_callback)
 
 async def ConsoleInput(tropas):
@@ -66,18 +67,22 @@ async def ConsoleInput(tropas):
 acciones = []
 
 
-def Generate_new_footprint(border_color=[255, 0, 0], border_size=2):
-    if border_size < 2:
-        border_size = 2
+def Generate_new_footprint(border_color=[255, 0, 0], border_size=7):
+    footprint = cv2.cvtColor(aruco.Generate_new_Id(), cv2.COLOR_BGR2RGB)
+
+    if border_size < 7:
+        border_size = 7
+
+    white = (255,255,255)
 
     footprint_with_marco = cv2.copyMakeBorder(
-        cv2.cvtColor(aruco.Generate_new_Id(), cv2.COLOR_BGR2RGB),
+        footprint,
         top=border_size-1,
         bottom=border_size-1,
         left=border_size-1,
         right=border_size-1,
         borderType=cv2.BORDER_CONSTANT,
-        value=(0,0,0),
+        value=white,
     )
     footprint_with_marco[0:border_size-1,0:border_size-1] = border_color
 
@@ -107,8 +112,7 @@ def main_console():
             color=Led(255, 0, 0),
             matrix=video.Get_Frame(),
             footprint=Generate_new_footprint(
-                border_color=Led(255, 0, 0).Get_RGB(), border_size=10
-            ),
+                border_color=Led(255, 0, 0).Get_RGB()),
         )
 
         random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
@@ -143,17 +147,23 @@ def main_random():
             color=Led(255, 0, 0),
             matrix=video.Get_Frame(),
             footprint=Generate_new_footprint(
-                border_color=Led(255, 0, 0).Get_RGB(), border_size=5
-            ),
+                border_color=Led(255, 0, 0).Get_RGB()),
         )
 
         random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
         random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
         random_orientation = possible_orientations[(randrange(4))]
-
         tropa.Place_Tropa(random_x, random_y, random_orientation)
         tropas.append(tropa)
-    asyncio.run(randomMovements(tropas))
+    #asyncio.run(randomMovements(tropas))
+
+    (corners, ids, rejected)  = aruco.Detect_Aruco(video.Get_Frame())
+
+    new_frame = aruco.Draw_Detected_Aruco(video.Get_Frame(), corners, ids)
+    #new_frame = aruco.Draw_Rejected_Aruco(video.Get_Frame(), rejected)
+
+    cv2.imshow("aaa",new_frame)
+    cv2.waitKey(0)
 
 if __name__ == "__main__":
     video_thread = video.start()
