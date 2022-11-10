@@ -1,27 +1,25 @@
 import sys
 import os
+from numpy import uint8
 from abc import abstractmethod, ABCMeta
 
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                ".."+os.path.sep+"Comunicaciones"))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
-sys.path.append(os.path.join(os.path.dirname(__file__),
-                ".."+os.path.sep+"Leds"))
+from Comunicaciones.ICommunication import ICommunication
+from Leds.ILed import ILed
 
-from ICommunication import ICommunication
-from ILed import ILed
 
 class ITropa(metaclass=ABCMeta):
-    id : int = 0
-    communication : ICommunication = None
-    color : ILed = None
+    id: uint8 = 0
+    communication: ICommunication = None
+    color: ILed = None
 
-    def __init__(self, id : int, communication: ICommunication, color : ILed):
+    def __init__(self, id: uint8, communication: ICommunication, color: ILed):
         self.id = id
         self.communication = communication
         self.color = color
         super().__init__()
-       
+
     @abstractmethod
     def Move_Forward(self):
         pass

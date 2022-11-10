@@ -1,24 +1,19 @@
-from pickletools import uint8
 import sys
 import os
 import numpy as np
 import cv2
 
+
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep + "Leds"))
-sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep + "Aruco"))
-sys.path.append(
-    os.path.join(os.path.dirname(__file__), ".." + os.path.sep + "Comunicaciones")
-)
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
-
-from ICommunication import ICommunication
-from ILed import ILed
-from Led import Led
+from Comunicaciones.ICommunication import ICommunication
+from Utils.Resolution import Resolution
+from Leds.ILed import ILed
 from ITropa import ITropa
-from Aruco import Aruco
+
 
 
 class FakeTropa(ITropa):
@@ -30,7 +25,7 @@ class FakeTropa(ITropa):
 
     def __init__(
         self,
-        id: uint8,
+        id: np.uint8,
         communication: ICommunication,
         color: ILed,
         matrix: np.ndarray,
@@ -150,18 +145,24 @@ class FakeTropa(ITropa):
         # ] = self.id
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
+    from Aruco.Aruco import Aruco
+    from Leds.Led import Led
+
+    resolution = Resolution(600,600)
+
     aruco = Aruco()
     aruco.Generate_Dictionary()
-    footprint = cv2.cvtColor(aruco.Generate_new_Id(), cv2.COLOR_BGR2RGB)
+    footprint = cv2.cvtColor(aruco.Generate_new_Id(Resolution(100,100)), cv2.COLOR_BGR2RGB)
 
-    matrix = np.zeros([600, 600, 3])
+    frame = np.zeros([resolution.Get_Width(), resolution.Get_Height(), 3])
     led = Led(255, 0, 0)
-    prueba = FakeTropa(1, None, led, matrix, footprint)
+    prueba = FakeTropa(1, None, led, frame, footprint)
     prueba.Place_Tropa(0, 0, 0)
-    for i in range(11):
+
+    for i in range(50):
         prueba.Move_Forward()
 
-    cv2.imshow(prueba.Get_Footprint())
+    cv2.imshow("asas",frame)
     cv2.waitKey(0)
 

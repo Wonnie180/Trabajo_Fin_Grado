@@ -1,14 +1,10 @@
 from abc import abstractmethod, ABCMeta
-
+from numpy import uint8
 
 class IAruco(metaclass=ABCMeta):
-    current_id : int = 0
+    current_id : uint8 = 0
     dictionary = None
-    img_size = 0
     detector_parameters = None
-    image_source = None
-
-
 
     def __init__(self):
         super().__init__()
@@ -28,8 +24,3 @@ class IAruco(metaclass=ABCMeta):
     @abstractmethod
     def Detect_Aruco(self, frame):
         pass
-
-    @abstractmethod
-    def Draw_Detected_Aruco(self, frame):
-        pass
-

@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABCMeta
-from pickletools import uint8
+from numpy import uint8
 
 
 class ILed(metaclass=ABCMeta):

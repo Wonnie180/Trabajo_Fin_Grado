@@ -1,12 +1,24 @@
 from abc import abstractmethod, ABCMeta
+import os
+import sys
 
-from Resolution import Resolution
+sys.path.append(
+    os.path.join(os.path.dirname(__file__), ".." + os.path.sep + "Utils")
+)
 
+from Utils.Resolution import Resolution
 
 class IVideoSource(metaclass=ABCMeta):
-    
-    def __init__(self, resolution : Resolution):    
+    has_new_frame: bool = False
+    resolution: Resolution = None
+
+    def __init__(self, resolution: Resolution):
+        self.resolution = resolution
         super().__init__()
+
+    @abstractmethod
+    def Has_New_Frame(self):        
+        pass
 
     @abstractmethod
     def Get_Frame(self):
@@ -29,7 +41,7 @@ class IVideoSource(metaclass=ABCMeta):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("Hello")
     print("AAA")
     print("BBB")

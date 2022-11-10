@@ -12,7 +12,7 @@ from random import randrange, seed
 from Aruco.Aruco import Aruco
 from Utils.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
-from VideoSource.FakeVideo import FakeVideo
+from VideoSource.WebCam import WebCam
 from Leds.Led import Led
 from VideoPlayback.CV2ImShow import CV2ImShow
 
@@ -22,15 +22,15 @@ seed(0xDEADBEEF)
 current_id = count(1)
 
 resolution = Resolution(800, 800)
-common_frame = ndl(
-    np.zeros([resolution.Get_Width(), resolution.Get_Width(), 3], dtype=np.uint8)
-)
 
 aruco = Aruco()
 aruco.Generate_Dictionary()
 
-video_source = FakeVideo(resolution, common_frame)
+video_source = WebCam(resolution,0)
 video_playback = CV2ImShow("Video TFG Luis", video_source, aruco)
+
+
+
 
 async def ConsoleInput(tropas):
     input_text = [""]
@@ -56,7 +56,7 @@ async def ConsoleInput(tropas):
     return
 
 def Generate_new_footprint(border_color=[255, 0, 0], border_size=7):
-    footprint = cv2.cvtColor(aruco.Generate_new_Id(Resolution(50,50)), cv2.COLOR_BGR2RGB)
+    footprint = cv2.cvtColor(aruco.Generate_new_Id(), cv2.COLOR_BGR2RGB)
 
     if border_size < 7:
         border_size = 7
@@ -88,17 +88,8 @@ def Generate_new_footprint(border_color=[255, 0, 0], border_size=7):
 
 
 possible_orientations = [0, 90, 180, 270]
-num_tropas = 20
+num_tropas = 2
 
-
-def isOverlaping(random_x, random_y, tropa):
-    zona = video_source.Get_Frame()[
-        random_x:random_x+tropa.Get_Footprint().shape[0], 
-        random_y:random_y+tropa.Get_Footprint().shape[1]]
-
-    res = np.any(zona != 0)
-
-    return not res
 
 def main_console():
     tropas = []
@@ -112,13 +103,8 @@ def main_console():
                 border_color=Led(255, 0, 0).Get_RGB()),
         )
 
-        while (1):
-            random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
-            random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
-            if  random_x < resolution.Get_Width()-100 and \
-                random_y < resolution.Get_Height()-100 and \
-                isOverlaping(random_x, random_y,tropa):
-                break
+        random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
+        random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
 
         tropa.Place_Tropa(random_x, random_y, 180)
         tropas.append(tropa)
@@ -152,21 +138,16 @@ def main_random():
                 border_color=Led(255, 0, 0).Get_RGB()),
         )
 
+        random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
+        random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
         random_orientation = possible_orientations[(randrange(4))]
-
-        while (1):
-            random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
-            random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
-            if random_x < resolution.Get_Width()-100 and random_y < resolution.Get_Height()-100 and isOverlaping(random_x, random_y,tropa):
-                break
-
         tropa.Place_Tropa(random_x, random_y, random_orientation)
         tropas.append(tropa)
     asyncio.run(randomMovements(tropas))   
 
 if __name__ == "__main__":
     video_thread = video_playback.start()
-    main_random()
+    #main_random()
     exit()
     thread = Thread(target=main_console)
     thread.start()

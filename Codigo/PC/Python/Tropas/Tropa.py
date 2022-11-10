@@ -4,7 +4,6 @@ import os
 if __name__ != '__main__':
     sys.path.append(os.path.dirname(__file__))
 
-
 from ITropa import ITropa
 
 class Tropa(ITropa):
