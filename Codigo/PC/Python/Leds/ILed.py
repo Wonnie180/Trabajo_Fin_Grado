@@ -7,24 +7,24 @@ class ILed(metaclass=ABCMeta):
     G : int = 0
     B : int = 0
 
-    def __init__(self, R:uint8, G:uint8, B:uint8):
-        self.R = R
-        self.G = G
-        self.B = B
+    def __init__(self, RGB: list[uint8]):
+        self.R = RGB[0]
+        self.G = RGB[1]
+        self.B = RGB[2]
         super().__init__()
 
     @abstractmethod
-    def Get_RGB(self):
+    def Get_RGB(self) -> list[uint8]:
         pass
 
     @abstractmethod
-    def Set_RGB(self, R :int, G:int, B:int):
+    def Set_RGB(self, RGB:list[uint8]):
         pass
 
     @abstractmethod
-    def Get_BGR(self):
+    def Get_BGR(self) -> list[uint8]:
         pass
 
     @abstractmethod
-    def Set_BGR(self, B :int, G:int, R:int):
+    def Set_BGR(self, BGR: list[uint8]):
         pass   

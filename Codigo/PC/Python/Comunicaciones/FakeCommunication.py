@@ -1,6 +1,5 @@
 import sys
 import os
-import bluetooth
 from numpy import uint8 
 
 if __name__ != '__main__':
@@ -12,27 +11,26 @@ sys.path.append(
 
 from ICommunication import ICommunication, TROPA_ACTIONS
 
-
-class Bluetooth(ICommunication):
+class FakeCommunication(ICommunication):
+    datos_simulados = ""
     def __init__(self):
-        self._interface = bluetooth
+        self._interface = None
         super().__init__()
 
     def Search_Devices(self):
-        self.devices = self._interface.discover_devices(lookup_names=True)
+        pass
 
     def Get_Devices(self):
         return self.devices
 
     def Send_Data(self, action: TROPA_ACTIONS, data: list[uint8]):
-        print(data)
+        print("Enviado: Acción->",action.value," Datos->",data)
 
     def Get_Data(self):
-        print("recibido");  
+        return "Recibido: "+self.datos_simulados
 
 
 if __name__ == '__main__':
-    prueba = Bluetooth()
-    # prueba.Search_Devices()    
-    print(prueba.Get_Devices())
+    prueba = FakeCommunication()
     prueba.Send_Data(TROPA_ACTIONS.CHANGE_COLOR,[255,255,255])
+    print(prueba.Get_Data())
