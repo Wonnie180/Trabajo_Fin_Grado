@@ -1,133 +1,37 @@
 # System Libraries
 import asyncio
-import aioconsole
 import cv2
-import numpy as np
 from threading import Thread
-from ndarray_listener import ndl
 from itertools import count
 from random import randrange, seed
 
 # Custom Libraries
-from Aruco.Aruco import Aruco
 from Utils.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
 from VideoSource.FakeVideo import FakeVideo
-from Leds.Led import Led
-from VideoPlayback.CV2ImShow import CV2ImShow
-
-
+from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
+from Utils.Frame import Frame
+from Positions.Position_2D import Position_2D
+from Color.Color import Color
+from Arucos.Aruco_Drawable import Aruco_Drawable
 
 seed(0xDEADBEEF)
-current_id = count(1)
 
 resolution = Resolution(800, 800)
-common_frame = ndl(
-    np.zeros([resolution.Get_Width(), resolution.Get_Width(), 3], dtype=np.uint8)
-)
+common_frame = Frame(resolution)
 
-aruco = Aruco()
-aruco.Generate_Dictionary()
-
-video_source = FakeVideo(resolution, common_frame)
-video_playback = CV2ImShow("Video TFG Luis", video_source, aruco)
-
-async def ConsoleInput(tropas):
-    input_text = [""]
-    while not video_playback.Has_to_stop():
-        input_text = (await aioconsole.ainput("Comando: ")).split(" ")
-
-        command = input_text[0]
-        troop = int(input_text[1]) if len(input_text) > 1 else 0
-        reps = int(input_text[2]) if len(input_text) > 2 else 1
-
-        if command == "move_f":
-            for i in range(reps):
-                tropas[troop].Move_Forward()
-        elif command == "move_b":
-            for i in range(reps):
-                tropas[troop].Move_Backwards()
-        elif command == "turn_r":
-            for i in range(reps):
-                tropas[troop].Turn_Right()
-        elif command == "turn_l":
-            for i in range(reps):
-                tropas[troop].Turn_Left()
-    return
-
-def Generate_new_footprint(border_color=[255, 0, 0], border_size=7):
-    footprint = cv2.cvtColor(aruco.Generate_new_Id(Resolution(50,50)), cv2.COLOR_BGR2RGB)
-
-    if border_size < 7:
-        border_size = 7
-
-    white = (255,255,255)
-
-    footprint_with_marco = cv2.copyMakeBorder(
-        footprint,
-        top=border_size-1,
-        bottom=border_size-1,
-        left=border_size-1,
-        right=border_size-1,
-        borderType=cv2.BORDER_CONSTANT,
-        value=white,
-    )
-    footprint_with_marco[0:border_size-1,0:border_size-1] = border_color
-
-    return cv2.copyMakeBorder(
-        footprint_with_marco,
-        top=1,
-        bottom=1,
-        left=1,
-        right=1,
-        borderType=cv2.BORDER_CONSTANT,
-        value=border_color,
-    )
-
-
-
+video_source = FakeVideo(common_frame)
+video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source)
+dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+detector_parameters =  cv2.aruco.DetectorParameters_create()
+aruco = Aruco_Drawable(dictionary,detector_parameters,video_source, video_playback)
 
 possible_orientations = [0, 90, 180, 270]
-num_tropas = 20
-
-
-def isOverlaping(random_x, random_y, tropa):
-    zona = video_source.Get_Frame()[
-        random_x:random_x+tropa.Get_Footprint().shape[0], 
-        random_y:random_y+tropa.Get_Footprint().shape[1]]
-
-    res = np.any(zona != 0)
-
-    return not res
-
-def main_console():
-    tropas = []
-    for i in range(num_tropas):
-        tropa = FakeTropa(
-            id=next(current_id),
-            communication=None,
-            color=Led(255, 0, 0),
-            matrix=video_source.Get_Frame(),
-            footprint=Generate_new_footprint(
-                border_color=Led(255, 0, 0).Get_RGB()),
-        )
-
-        while (1):
-            random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
-            random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
-            if  random_x < resolution.Get_Width()-100 and \
-                random_y < resolution.Get_Height()-100 and \
-                isOverlaping(random_x, random_y,tropa):
-                break
-
-        tropa.Place_Tropa(random_x, random_y, 180)
-        tropas.append(tropa)
-    asyncio.run(ConsoleInput(tropas))
-
+num_tropas = 10
 
 async def randomMovements(tropas):
-    while not video_playback.Has_to_stop():
-        await asyncio.sleep(0.1)
+    while not video_playback.Has_To_Stop():
+        await asyncio.sleep(0.05)
         tropa_Seleccionada = randrange(len(tropas))
         movimiento_aleatorio = randrange(4)
         if movimiento_aleatorio == 0:
@@ -140,35 +44,37 @@ async def randomMovements(tropas):
             tropas[tropa_Seleccionada].Turn_Left()
     return
 
+
 def main_random():
     tropas = []
     for i in range(num_tropas):
-        tropa = FakeTropa(
-            id=next(current_id),
-            communication=None,
-            color=Led(255, 0, 0),
-            matrix=video_source.Get_Frame(),
-            footprint=Generate_new_footprint(
-                border_color=Led(255, 0, 0).Get_RGB()),
-        )
-
+        tropa_id = aruco.Get_Current_Id()
         random_orientation = possible_orientations[(randrange(4))]
-
-        while (1):
-            random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
-            random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
-            if random_x < resolution.Get_Width()-100 and random_y < resolution.Get_Height()-100 and isOverlaping(random_x, random_y,tropa):
+        footprint = cv2.cvtColor(aruco.Generate_new_Id(50), cv2.COLOR_GRAY2RGB)
+        while 1:
+            random_x = randrange(resolution.Get_Width()) + footprint.shape[0]
+            random_y = randrange(resolution.Get_Height()) + footprint.shape[1]
+            if (
+                random_x < resolution.Get_Width() - 100
+                and random_y < resolution.Get_Height() - 100
+            ):
                 break
 
-        tropa.Place_Tropa(random_x, random_y, random_orientation)
+        tropa = FakeTropa(
+            id=tropa_id,
+            position=Position_2D((random_x, random_y, random_orientation)),
+            communication=None,
+            color=Color((255, 0, 0)),
+            matrix=video_source.Get_Frame(),
+            footprint=footprint,
+        )
+
         tropas.append(tropa)
-    asyncio.run(randomMovements(tropas))   
+    asyncio.run(randomMovements(tropas))
 
 if __name__ == "__main__":
-    video_thread = video_playback.start()
-    main_random()
-    exit()
-    thread = Thread(target=main_console)
-    thread.start()
-    thread.join()
+    thread_main = Thread(target=main_random, args=()).start()
+    thread_aruco = Thread(target=aruco.Run, args=()).start()
+    thread_video = Thread(target=video_playback.Run, args=()).start()
 
+    exit()

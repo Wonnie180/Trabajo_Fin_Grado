@@ -1,33 +1,26 @@
 import os
 import sys
-import numpy as np
-from ndarray_listener import ndl
 
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
 sys.path.append(
-    os.path.join(os.path.dirname(__file__), ".." + os.path.sep + "Utils")
+    os.path.join(os.path.dirname(__file__), ".." + os.path.sep)
 )
 
-from Utils.Resolution import Resolution
+from Utils.Frame import Frame
 from IVideoSource import IVideoSource
 
 class FakeVideo(IVideoSource):
-    frame = None
-    has_new_frame: bool = False
+    frame : Frame
 
-    def __init__(self, resolution: Resolution, frame: ndl):
+    def __init__(self, frame: Frame):
         self.frame = frame
-        self.frame.talk_to(self)
-        super().__init__(resolution)
-
-    def Has_New_Frame(self):
-        return self.has_new_frame
+        self.frame.AddObserver(self)
+        super().__init__(frame.resolution)
 
     def Get_Frame(self):
-        self.has_new_frame = False
-        return self.frame
+        return self.frame.frame
 
     def Get_FPS(self):
         return self.fps
@@ -36,20 +29,17 @@ class FakeVideo(IVideoSource):
         self.fps = fps
 
     def Set_Resolution(self, resolution):
-        self.resolution = resolution
+        pass
 
     def Get_Resolution(self):
-        return self.resolution
+        return self.frame.resolution
 
     def __call__(self):
         self.has_new_frame = True
 
 
 if __name__ == "__main__":
-    resolution = Resolution(800, 800)
-    fakeFrame = ndl(
-        np.zeros([resolution.Get_Width(), resolution.Get_Width(), 3], dtype=np.uint8)
-    )
-    prueba = FakeVideo(resolution, fakeFrame)
-    prueba.start()
+    from Utils.Resolution import Resolution
+    prueba = FakeVideo(Frame(Resolution(800,800)))
+    print(prueba.Get_Frame())
 

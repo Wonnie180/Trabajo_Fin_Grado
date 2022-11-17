@@ -17,10 +17,6 @@ class IVideoSource(metaclass=ABCMeta):
         super().__init__()
 
     @abstractmethod
-    def Has_New_Frame(self):        
-        pass
-
-    @abstractmethod
     def Get_Frame(self):
         pass
 
@@ -39,10 +35,3 @@ class IVideoSource(metaclass=ABCMeta):
     @abstractmethod
     def Get_Resolution(self):
         pass
-
-
-if __name__ == "__main__":
-    print("Hello")
-    print("AAA")
-    print("BBB")
-    print("CCC")

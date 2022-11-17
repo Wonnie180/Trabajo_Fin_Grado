@@ -16,7 +16,6 @@ from Utils.Resolution import Resolution
 class WebCam(IVideoSource):
     number_webcam: int = 0
     cap = None
-
     frame = None
     has_new_frame: bool = False
 
@@ -26,9 +25,6 @@ class WebCam(IVideoSource):
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution.Get_Width())
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution.Get_Height())
         super().__init__(self.resolution)
-
-    def Has_New_Frame(self):
-        return True
 
     def Get_Frame(self):
         _, self.frame = self.cap.read()

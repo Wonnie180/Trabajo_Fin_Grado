@@ -1,42 +1,32 @@
 from abc import abstractmethod, ABCMeta
 import os
 import sys
+from typing import List
 
 
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
-sys.path.append(
-    os.path.join(
-        os.path.dirname(__file__),
-        ".." + os.path.sep + "VideoSource",
-    )
-)
-sys.path.append(
-    os.path.join(
-        os.path.dirname(__file__),
-        ".." + os.path.sep + "Aruco",
-    )
-)
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from VideoSource.IVideoSource import IVideoSource
-from Positions.Position_2D import Position_2D
-
 
 class IVideoPlayback(metaclass=ABCMeta):
     has_to_stop: bool = False
     videoSource: IVideoSource = None
-    callback: any = callable
     title: str = ""
 
-    def __init__(self, title: str, videoSource: IVideoSource, callback: callable):
+    def __init__(self, title: str, videoSource: IVideoSource):
         self.videoSource = videoSource
-        self.callback = callback
         self.title = title
         super().__init__()
 
     @abstractmethod
-    def start(self):
+    def Run(self):
+        pass
+
+    @abstractmethod
+    def Draw_Frame(self):
         pass
 
     @abstractmethod
@@ -44,9 +34,5 @@ class IVideoPlayback(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def Draw_Text(self, text: str, position: Position_2D):
-        pass
-
-    @abstractmethod
-    def Draw_Rectangles(self, rectangles):
+    def Has_To_Stop(self):
         pass

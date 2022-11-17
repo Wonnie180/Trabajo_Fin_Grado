@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from Comunicaciones.ICommunication import ICommunication
 from Utils.Resolution import Resolution
-from Leds.ILed import ILed
+from Color.Color import Color
 from ITropa import ITropa
 from Positions.Position_2D import Position_2D
 
@@ -25,7 +25,7 @@ class FakeTropa(ITropa):
         self,
         id: np.uint8,
         communication: ICommunication,
-        color: ILed,
+        color: Color,
         matrix: np.ndarray,
         footprint: np.ndarray,
         position: Position_2D,
@@ -128,7 +128,7 @@ class FakeTropa(ITropa):
             self.position.x : self.position.x + self.footprint.shape[0],
             self.position.y : self.position.y + self.footprint.shape[1],
             :,
-        ] = (0, 0, 0)
+        ] = (255, 255, 255)
 
         self.matrix[
             pos_x : pos_x + self.footprint.shape[0],

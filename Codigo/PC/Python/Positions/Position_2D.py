@@ -4,9 +4,7 @@ import sys
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
-sys.path.append(
-    os.path.join(os.path.dirname(__file__), ".." + os.path.sep)
-)
+sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from IPosition import IPosition
 
@@ -32,8 +30,6 @@ class Position_2D(IPosition):
         if len(position) != 3:
             raise ValueError("Wrong length given for position Position_2D")
 
-
 if __name__ == "__main__":
-    test = Position_2D([1,2,3])
+    test = Position_2D([1, 2,3])
     print(test.Get_Position())
-

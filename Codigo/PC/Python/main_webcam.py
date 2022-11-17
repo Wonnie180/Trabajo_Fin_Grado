@@ -14,20 +14,23 @@ from Utils.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
 from VideoSource.WebCam import WebCam
 from Leds.Led import Led
-from VideoPlayback.CV2ImShow import CV2ImShow
-
+from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
+from Geometries.Rectangles.Rectangle_Drawable import Rectangle_Drawable
+from Geometries.Circles.Circle_Drawable import Circle_Drawable
+from Geometries.Text.Text_Drawable import Text_Drawable
+from Color.Color import Color
 
 
 seed(0xDEADBEEF)
 current_id = count(1)
 
-resolution = Resolution(800, 800)
+resolution = Resolution(1280, 720)
 
 aruco = Aruco()
 aruco.Generate_Dictionary()
 
 video_source = WebCam(resolution,0)
-video_playback = CV2ImShow("Video TFG Luis", video_source, aruco)
+video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source)
 
 
 
@@ -143,13 +146,49 @@ def main_random():
         random_orientation = possible_orientations[(randrange(4))]
         tropa.Place_Tropa(random_x, random_y, random_orientation)
         tropas.append(tropa)
-    asyncio.run(randomMovements(tropas))   
+    asyncio.run(randomMovements(tropas))
+
+
+
+def draw_aruco(corners, ids):
+    rectangles = []
+    circles = []
+    texts = []
+    if len(corners) > 0:
+        for (markerCorner, markerID) in zip(corners, ids):
+            corners = markerCorner.reshape((4, 2))
+            (topLeft, topRight, bottomRight, bottomLeft) = corners
+
+            topRight = (int(topRight[0]), int(topRight[1]))
+            bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+            bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+            topLeft = (int(topLeft[0]), int(topLeft[1]))
+
+            
+            cX = int((topLeft[0] + bottomRight[0]) / 2.0)
+            cY = int((topLeft[1] + bottomRight[1]) / 2.0)
+
+            rectangle = Rectangle_Drawable(topLeft, topRight, bottomLeft, bottomRight, Color((255,0,0)))
+            circle = Circle_Drawable((cX,cY), 4, Color((0,0,255)))
+            text = Text_Drawable(topLeft, str(markerID),Color((255,0,255)))
+
+            rectangles.append(rectangle)
+            circles.append(circle)
+            texts.append(text)
+
+    video_playback.Add_Rectangles(rectangles)
+    video_playback.Add_Circles(circles)
+    video_playback.Add_Texts(texts)
+            
+            
+def deteccion_aruco():
+    while not video_playback.Has_To_Stop():
+        (corners, ids, _) = aruco.Detect_Aruco(video_source.Get_Frame())
+        draw_aruco(corners, ids)
+        
 
 if __name__ == "__main__":
-    video_thread = video_playback.start()
-    #main_random()
-    exit()
-    thread = Thread(target=main_console)
-    thread.start()
-    thread.join()
+    thread_video = Thread(target=video_playback.Play, args=()).start()
+    thread_aruco = Thread(target=deteccion_aruco,args=()).start()
+    #thread_main =  Thread(target=main_random, args=()).start()
 

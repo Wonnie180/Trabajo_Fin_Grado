@@ -7,16 +7,16 @@ from abc import abstractmethod, ABCMeta
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from Comunicaciones.ICommunication import ICommunication
-from Leds.ILed import ILed
+from Color.Color import Color
 from Positions.IPosition import IPosition
 
 class ITropa(metaclass=ABCMeta):
-    id: uint8 = 0
-    communication: ICommunication = None
-    color: ILed = None
+    id: uint8
+    communication: ICommunication
+    color: Color
     position: IPosition
 
-    def __init__(self, id: uint8, communication: ICommunication, color: ILed, position: IPosition):
+    def __init__(self, id: uint8, communication: ICommunication, color: Color, position: IPosition):
         self.id = id
         self.communication = communication
         self.color = color
