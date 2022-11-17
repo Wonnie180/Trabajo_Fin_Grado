@@ -18,6 +18,9 @@ class Color():
     BGR: List[uint8]
 
     def __init__(self, RGB: List[int]):
+        self.Set_RGB(RGB)
+
+    def Set_RGB(self, RGB: List[int]):
         self.r = RGB[0]
         self.g = RGB[1]
         self.b = RGB[2]

@@ -14,7 +14,7 @@ from Utils.Frame import Frame
 from Positions.Position_2D import Position_2D
 from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
-
+from CommandManagers.CommandManager import CommandManager
 seed(0xDEADBEEF)
 
 resolution = Resolution(800, 800)
@@ -25,12 +25,13 @@ video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters =  cv2.aruco.DetectorParameters_create()
 aruco = Aruco_Drawable(dictionary,detector_parameters,video_source, video_playback)
+command_manager = CommandManager()
 
 possible_orientations = [0, 90, 180, 270]
 num_tropas = 10
 
 async def randomMovements(tropas):
-    while not video_playback.Has_To_Stop():
+    while not video_playback.has_to_stop:
         await asyncio.sleep(0.05)
         tropa_Seleccionada = randrange(len(tropas))
         movimiento_aleatorio = randrange(4)
@@ -75,6 +76,15 @@ def main_random():
 if __name__ == "__main__":
     thread_main = Thread(target=main_random, args=()).start()
     thread_aruco = Thread(target=aruco.Run, args=()).start()
-    thread_video = Thread(target=video_playback.Run, args=()).start()
+    thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
+    thread_video = Thread(target=video_playback.Run, args=())
+    thread_video.start()
+    thread_video.join()
+
+    aruco.Stop()
+    command_manager.Stop()
+
+
+
 
     exit()

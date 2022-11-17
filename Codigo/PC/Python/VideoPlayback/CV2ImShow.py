@@ -11,7 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from VideoSource.IVideoSource import IVideoSource
 from IVideoPlayback import IVideoPlayback
-
+from AbleInterfaces.Runnable import Runnable
 
 def Default_Action(video_playback):
     miliseconds_delay = 50
@@ -41,7 +41,7 @@ def click_drag_callback2(event, x, y, flags, param):
     #     self.Remove_Coordinate_Rectangle()
 
 
-class CV2ImShow(IVideoPlayback):
+class CV2ImShow(IVideoPlayback, Runnable):
     action: callable = None
     callback: callable = None
 
@@ -70,9 +70,7 @@ class CV2ImShow(IVideoPlayback):
         self.Initializate_Frame()
         cv2.imshow(self.title, self.frame)
 
-    def Has_To_Stop(self):
-        return self.has_to_stop
-
+  
     def Run(self):
         self.Draw_Frame()
         self.Add_Callback()
@@ -82,6 +80,9 @@ class CV2ImShow(IVideoPlayback):
             self.action(self)
         self.Destroy_Window()
 
+    def Stop(self):
+        self.has_to_stop = True
+        
     def Initializate_Frame(self):
         self.frame = self.videoSource.Get_Frame().copy()
 

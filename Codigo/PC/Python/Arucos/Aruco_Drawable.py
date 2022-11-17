@@ -18,9 +18,10 @@ from Color.Color import Color
 from Utils.Frame import Frame
 from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
 from VideoSource.IVideoSource import IVideoSource
+from AbleInterfaces.Runnable import Runnable
 import asyncio
 
-class Aruco_Drawable(Aruco):
+class Aruco_Drawable(Aruco, Runnable):
     video_source: IVideoSource
     video_playback: CV2ImShow_Drawable
 
@@ -31,11 +32,14 @@ class Aruco_Drawable(Aruco):
         self.video_playback = video_playback
         super().__init__(dictionary, detector_parameters)
 
-    def Run(self, sleep_time:float = 0.01):
-        while not self.video_playback.Has_To_Stop():
-            sleep(sleep_time)
+    def Run(self):
+        while not self.has_to_stop:
+            sleep(0.1)
             self.Draw_Detected_Aruco()
         return
+
+    def Stop(self):
+        self.has_to_stop = True
 
     def Draw_Detected_Aruco(self):
         (corners, ids, _) = self.Detect_Aruco(self.video_source.Get_Frame())
@@ -91,4 +95,7 @@ if __name__ == "__main__":
     ] = aruco_marker
 
     Thread(target=video_pb.Run, args=()).start()
-    Thread(target=asyncio.run(prueba.Run()), args=()).start()
+    Thread(target=prueba.Run, args=()).start()
+
+
+    prueba.Stop()

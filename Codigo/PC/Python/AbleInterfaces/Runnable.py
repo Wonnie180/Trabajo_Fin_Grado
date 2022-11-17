@@ -3,28 +3,25 @@ import os
 import sys
 from typing import List
 
-
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
-from VideoSource.IVideoSource import IVideoSource
+from Commands.ICommand import ICommand
 
-class IVideoPlayback(metaclass=ABCMeta):
+class Runnable(metaclass=ABCMeta):
     has_to_stop: bool = False
-    videoSource: IVideoSource = None
-    title: str = ""
 
-    def __init__(self, title: str, videoSource: IVideoSource):
-        self.videoSource = videoSource
-        self.title = title
+    def __init__(self):        
         super().__init__()
 
     @abstractmethod
-    def Draw_Frame(self):
+    def Run(self):
         pass
 
     @abstractmethod
-    def Get_Title(self):
+    def Stop(self):
         pass
+
+    

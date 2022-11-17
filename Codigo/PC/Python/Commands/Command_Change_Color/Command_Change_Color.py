@@ -11,23 +11,23 @@ sys.path.append(
 
 from Commands.ICommand import ICommand
 from Tropas.ITropa import ITropa
-from Leds.ILed import ILed
+from Color.Color import Color
+from Comunicaciones.ICommunication import TROPA_ACTIONS
 
 class Command_Change_Color(ICommand):
     tropa: ITropa
-    color: ILed
+    color: Color
     have_finished: bool = False
 
-    def __init__(self, tropa: ITropa, color:ILed):
+    def __init__(self, tropa: ITropa, color:Color):
         self.tropa = tropa
         self.color = color
         super().__init__()
 
     def Execute_Command(self):
         if not self.Have_Finished_Command():
-            self.tropa.color.Set_RGB(self.color.Get_RGB())
-            # self.tropa.communication.Send_Data(TROPA_ACTIONS,tropa.color.Get_RGB())
-            self.tropa.footprint[(self.tropa.footprint != 0).all(2)] = self.tropa.color.Get_RGB()
+            self.tropa.color.Set_RGB(self.color.RGB)
+            self.tropa.communication.Send_Data(TROPA_ACTIONS.CHANGE_COLOR,self.tropa.color.RGB)
             self.have_finished = True
 
     def Have_Finished_Command(self) -> bool:

@@ -92,7 +92,7 @@ def Action_Video(video_playback: CV2ImShow_Drawable):
     key_pressed = cv2.waitKey(miliseconds_delay) & mask_for_keypress
 
     if key_pressed == ord("q"):
-        video_playback.has_to_stop = True
+        video_playback.Stop()
     elif key_pressed == ord("r"):
         print(video_playback.rectangles)
         video_playback.rectangles = []
