@@ -9,29 +9,34 @@ from itertools import count
 from random import randrange, seed
 
 # Custom Libraries
-from Aruco.Aruco import Aruco
 from Utils.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
 from VideoSource.WebCam import WebCam
-from Leds.Led import Led
 from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
-from Geometries.Rectangles.Rectangle_Drawable import Rectangle_Drawable
-from Geometries.Circles.Circle_Drawable import Circle_Drawable
-from Geometries.Text.Text_Drawable import Text_Drawable
+from Utils.Frame import Frame
+from Positions.Position_2D import Position_2D
 from Color.Color import Color
+from Arucos.Aruco_Drawable import Aruco_Drawable
+from CommandManagers.CommandManager import CommandManager
+from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import Command_Go_To_2D_Position
 
+
+tropas = []
+command_manager = CommandManager()
 
 seed(0xDEADBEEF)
-current_id = count(1)
+
 
 resolution = Resolution(1280, 720)
 
-aruco = Aruco()
-aruco.Generate_Dictionary()
-
 video_source = WebCam(resolution,0)
-video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source)
+video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
+dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+detector_parameters = cv2.aruco.DetectorParameters_create()
+aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
 
+possible_orientations = [0, 90, 180, 270]
+num_tropas = 1
 
 
 
@@ -188,7 +193,15 @@ def deteccion_aruco():
         
 
 if __name__ == "__main__":
-    thread_video = Thread(target=video_playback.Play, args=()).start()
-    thread_aruco = Thread(target=deteccion_aruco,args=()).start()
-    #thread_main =  Thread(target=main_random, args=()).start()
+    thread_aruco = Thread(target=aruco.Run, args=()).start()
+    #thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
+    thread_video = Thread(target=video_playback.Run, args=())
+    thread_video.start()
+    #print(tropas[0].position.x, tropas[0].position.y)
+    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
+    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
+    thread_video.join()
+
+    aruco.Stop()
+    command_manager.Stop()
 

@@ -14,12 +14,13 @@ from Utils.Resolution import Resolution
 from Color.Color import Color
 from ITropa import ITropa
 from Positions.Position_2D import Position_2D
-
+from copy import deepcopy
 
 class FakeTropa(ITropa):
     matrix: np.ndarray = None
     footprint: np.ndarray = None
     degrees_90 = 0
+    fake_position: Position_2D
 
     def __init__(
         self,
@@ -37,6 +38,7 @@ class FakeTropa(ITropa):
         self.footprint = footprint
         self.matrix = matrix
         self.position = position
+        self.fake_position = deepcopy(position)
         super().__init__(id, communication, color, position)
 
     def isValidFootPrint(self, matrix, footprint):
@@ -56,9 +58,9 @@ class FakeTropa(ITropa):
         ] = self.footprint
 
     def Move_Forward(self):
-        pos_y = self.position.y
-        pos_x = self.position.x
-        angle = self.position.angle
+        pos_y = self.fake_position.y
+        pos_x = self.fake_position.x
+        angle = self.fake_position.angle
 
         if angle == 0:
             pos_y += 1
@@ -84,9 +86,9 @@ class FakeTropa(ITropa):
         self.Update_Matrix(pos_x, pos_y)
 
     def Move_Backwards(self):
-        pos_y = self.position.y
-        pos_x = self.position.x
-        angle = self.position.angle
+        pos_y = self.fake_position.y
+        pos_x = self.fake_position.x
+        angle = self.fake_position.angle
 
         if angle == 0:
             pos_y -= 1
@@ -112,21 +114,21 @@ class FakeTropa(ITropa):
         self.Update_Matrix(pos_x, pos_y)
 
     def Turn_Left(self):
-        self.position.angle = (self.position.angle + 90) % 360
+        self.fake_position.angle = (self.fake_position.angle + 90) % 360
 
-        if self.position.angle % 90 == 0:
+        if self.fake_position.angle % 90 == 0:
             self.footprint = np.rot90(self.footprint, 1)
-            self.Update_Matrix(self.position.x, self.position.y)
+            self.Update_Matrix(self.fake_position.x, self.fake_position.y)
 
     def Turn_Right(self):
-        self.position.angle = (self.position.angle - 90) % 360
+        self.fake_position.angle = (self.fake_position.angle - 90) % 360
         self.footprint = np.rot90(self.footprint, 3)
-        self.Update_Matrix(self.position.x, self.position.y)
+        self.Update_Matrix(self.fake_position.x, self.fake_position.y)
 
     def Update_Matrix(self, pos_x, pos_y):
         self.matrix[
-            self.position.x : self.position.x + self.footprint.shape[0],
-            self.position.y : self.position.y + self.footprint.shape[1],
+            self.fake_position.x : self.fake_position.x + self.footprint.shape[0],
+            self.fake_position.y : self.fake_position.y + self.footprint.shape[1],
             :,
         ] = (255, 255, 255)
 
@@ -136,7 +138,7 @@ class FakeTropa(ITropa):
             :,
         ] = self.footprint
 
-        self.position.Set_Position([pos_x, pos_y, self.position.angle])
+        self.fake_position.Set_Position([pos_x, pos_y, self.position.angle])
 
 
 if __name__ == "__main__":

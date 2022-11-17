@@ -19,6 +19,7 @@ class CommandManager(ICommandManager, Runnable):
     def Run(self):
         while not self.has_to_stop:
             self.Execute_Commands()
+            sleep(0.01)
 
     def Stop(self):
         self.has_to_stop = True
@@ -28,7 +29,6 @@ class CommandManager(ICommandManager, Runnable):
 
     def Execute_Commands(self):
         if len(self.commands) < 1:
-            sleep(0.1)
             return
         commands_to_remove : List[ICommand] = []
         for command in self.commands:

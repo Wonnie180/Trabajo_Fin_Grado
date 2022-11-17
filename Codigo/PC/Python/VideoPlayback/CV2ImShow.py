@@ -94,7 +94,7 @@ class CV2ImShow(IVideoPlayback, Runnable):
 
 
 def Action_Video(video_playback: CV2ImShow):
-    miliseconds_delay = 50
+    miliseconds_delay = 25
     mask_for_keypress = 0xFF
     key_pressed = cv2.waitKey(miliseconds_delay) & mask_for_keypress
 

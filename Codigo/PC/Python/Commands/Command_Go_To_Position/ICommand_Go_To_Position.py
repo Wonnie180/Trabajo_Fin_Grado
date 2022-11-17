@@ -9,11 +9,14 @@ sys.path.append(
 from Commands.ICommand import ICommand
 from Tropas.ITropa import ITropa
 from Positions.IPosition import IPosition
+from Arucos.IAruco import IAruco
 
 class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
+    aruco: IAruco
     tropa: ITropa
     position: IPosition
-    def __init__(self, tropa:ITropa, position:IPosition):
+    def __init__(self,aruco: IAruco, tropa:ITropa, position:IPosition):
+        self.aruco = aruco
         self.tropa = tropa
         self.position = position
         super().__init__()

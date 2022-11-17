@@ -6,6 +6,9 @@ class IAruco(metaclass=ABCMeta):
     current_id : uint8 = 0
     dictionary: any
     detector_parameters: any
+    corners : any = []
+    ids: any = []
+    rejected: any = []
 
     def __init__(self, dictionary, detector_parameters):
         self.dictionary = dictionary
@@ -22,4 +25,8 @@ class IAruco(metaclass=ABCMeta):
 
     @abstractmethod
     def Detect_Aruco(self, frame):
+        pass
+
+    @abstractmethod
+    def Get_Position_Of_Aruco(self, id):
         pass

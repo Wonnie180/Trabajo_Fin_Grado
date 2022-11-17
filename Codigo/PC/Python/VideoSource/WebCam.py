@@ -47,7 +47,7 @@ class WebCam(IVideoSource):
 
 if __name__ == "__main__":    
     from VideoPlayback.CV2ImShow import CV2ImShow
-    from Aruco.Aruco import Aruco
+    from Arucos.Aruco import Aruco
 
     aruco = Aruco()
     aruco.Generate_Dictionary()

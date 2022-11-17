@@ -34,21 +34,20 @@ class Aruco_Drawable(Aruco, Runnable):
 
     def Run(self):
         while not self.has_to_stop:
-            sleep(0.1)
+            sleep(0.05)
+            self.Detect_Aruco(self.video_source.Get_Frame())
             self.Draw_Detected_Aruco()
         return
 
     def Stop(self):
         self.has_to_stop = True
 
-    def Draw_Detected_Aruco(self):
-        (corners, ids, _) = self.Detect_Aruco(self.video_source.Get_Frame())
-
+    def Draw_Detected_Aruco(self):        
         rectangles = []
         circles = []
         texts = []
-        if len(corners) > 0:
-            for (markerCorner, markerID) in zip(corners, ids):
+        if len(self.corners) > 0:
+            for (markerCorner, markerID) in zip(self.corners, self.ids):
                 corners = markerCorner.reshape((4, 2))
                 (topLeft, topRight, bottomRight, bottomLeft) = corners
 

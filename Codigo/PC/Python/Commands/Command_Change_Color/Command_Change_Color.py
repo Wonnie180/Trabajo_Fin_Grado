@@ -14,12 +14,13 @@ from Tropas.ITropa import ITropa
 from Color.Color import Color
 from Comunicaciones.ICommunication import TROPA_ACTIONS
 
+
 class Command_Change_Color(ICommand):
     tropa: ITropa
     color: Color
     have_finished: bool = False
 
-    def __init__(self, tropa: ITropa, color:Color):
+    def __init__(self, tropa: ITropa, color: Color):
         self.tropa = tropa
         self.color = color
         super().__init__()
@@ -27,7 +28,9 @@ class Command_Change_Color(ICommand):
     def Execute_Command(self):
         if not self.Have_Finished_Command():
             self.tropa.color.Set_RGB(self.color.RGB)
-            self.tropa.communication.Send_Data(TROPA_ACTIONS.CHANGE_COLOR,self.tropa.color.RGB)
+            self.tropa.communication.Send_Data(
+                TROPA_ACTIONS.CHANGE_COLOR, self.tropa.color.RGB
+            )
             self.have_finished = True
 
     def Have_Finished_Command(self) -> bool:
@@ -35,35 +38,36 @@ class Command_Change_Color(ICommand):
 
 
 if __name__ == "__main__":
-    from Aruco.Aruco import Aruco
-    from Leds.Led import Led
+    from Arucos.Aruco import Aruco
+    from Color.Color import Color
     from Utils.Resolution import Resolution
     import numpy as np
     from Tropas.FakeTropa import FakeTropa
     from Positions.Position_2D import Position_2D
+    from Comunicaciones.FakeCommunication import FakeCommunication
     import cv2
 
     resolution = Resolution(600, 600)
-    led = Led([255, 0, 0])
+    color = Color([255, 0, 0])
     aruco = Aruco()
     aruco.Generate_Dictionary()
 
     footprint = cv2.cvtColor(
-        aruco.Generate_new_Id(Resolution(100, 100)), cv2.COLOR_GRAY2RGB 
+        aruco.Generate_new_Id(Resolution(100, 100)), cv2.COLOR_GRAY2RGB
     )
 
-
-
     frame = np.zeros([resolution.Get_Width(), resolution.Get_Height(), 3])
-    tropa = FakeTropa(1, None,led , frame, footprint, Position_2D([0, 0, 0]))
+    tropa = FakeTropa(
+        1, FakeCommunication(), color, frame, footprint, Position_2D([0, 0, 0])
+    )
     tropa.Update_Matrix(tropa.position.x, tropa.position.y)
-    prueba = Command_Change_Color(tropa, Led([0,255,0]))
-    
-    cv2.imshow("a",frame)
+    prueba = Command_Change_Color(tropa, color([0, 255, 0]))
+
+    cv2.imshow("a", frame)
     cv2.waitKey(0)
     prueba.Execute_Command()
     tropa.Update_Matrix(tropa.position.x, tropa.position.y)
-    cv2.imshow("a",frame)
+    cv2.imshow("a", frame)
     cv2.waitKey(0)
     print(tropa.footprint)
 
