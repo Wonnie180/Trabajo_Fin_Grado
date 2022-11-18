@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from IAruco import IAruco
 from Utils.Frame import Frame
-
+from numpy import where
 class Aruco(IAruco):
 
     def __init__(self, dictionary, detector_parameters):
@@ -26,13 +26,13 @@ class Aruco(IAruco):
     def Detect_Aruco(self, frame):
         (self.corners, self.ids, self.rejected) = cv2.aruco.detectMarkers(
             frame, self.dictionary, parameters=self.detector_parameters
-        )
-
+        )    
+        self.ids = self.ids.flatten()
+   
     def Get_Position_Of_Aruco(self, id):
         if self.ids is None or not id in self.ids:
             return None
-
-        return (self.corners[id].mean(axis=1))[0].astype(int)
+        return (self.corners[where(self.ids == id)[0][0]].mean(axis=1))[0].astype(int)
         
 
 
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     diccionario = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
     detector_parameters = cv2.aruco.DetectorParameters_create()
     prueba = Aruco(diccionario, detector_parameters)
-
+    
     cv2.imshow("frame", prueba.Generate_new_Id(100))
     cv2.waitKey(0)
     cv2.destroyAllWindows()

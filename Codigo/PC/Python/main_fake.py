@@ -20,10 +20,29 @@ from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import Command_Go
 tropas = []
 command_manager = CommandManager()
 
+seed(0xDEADBEEF)
+
+resolution = Resolution(800, 800)
+common_frame = Frame(resolution)
+tropas = []
+command_manager = CommandManager()
+
+seed(0xDEADBEEF)
+
+
+video_source = FakeVideo(common_frame)
+
+video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
+dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
+detector_parameters = cv2.aruco.DetectorParameters_create()
+aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
+
+
 def callback_test(event, x, y, flags, param):
     video_pb = param[0]
-    if event == cv2.EVENT_LBUTTONDOWN:
-        tropas[0].Move_Forward()
+    
+    if event == cv2.EVENT_LBUTTONDOWN:        
+        tropas[0].Move_Forward()       
     #     self.Add_Coordinate_Rectangle((x, y))
     #elif event == cv2.EVENT_LBUTTONUP:
     #     self.Add_Coordinate_Rectangle((x, y))
@@ -31,16 +50,7 @@ def callback_test(event, x, y, flags, param):
     #     self.Remove_Coordinate_Rectangle()
         tropas[0].Turn_Left()
 
-seed(0xDEADBEEF)
-
-resolution = Resolution(800, 800)
-common_frame = Frame(resolution)
-
-video_source = FakeVideo(common_frame)
-video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=callback_test)
-dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
-detector_parameters = cv2.aruco.DetectorParameters_create()
-aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
+video_playback.callback = callback_test
 
 possible_orientations = [0, 90, 180, 270]
 
@@ -92,7 +102,7 @@ def prepare():
             position=Position_2D((random_x, random_y, random_orientation)),
             communication=None,
             color=Color((255, 0, 0)),
-            matrix=video_source.Get_Frame(),
+            matrix=common_frame.frame,
             footprint=footprint,
         )
         tropa.Turn_Left()
@@ -101,17 +111,17 @@ def prepare():
 
 
 if __name__ == "__main__":
+    import numpy as np
     prepare()
     thread_aruco = Thread(target=aruco.Run, args=()).start()
     thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
     thread_video = Thread(target=video_playback.Run, args=())
     thread_video.start()
-    print(tropas[0].position.x, tropas[0].position.y)
     command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
-    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
+    # command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
     thread_video.join()
 
     aruco.Stop()
     command_manager.Stop()
 
-    exit()
+

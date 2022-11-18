@@ -16,8 +16,8 @@ from Utils.Resolution import Resolution
 class Frame:
     resolution: Resolution
     color_depth: int
-    frame: ndl[uint8]
-
+    frame: ndl
+    
     def __init__(self, resolution:Resolution, color_depth: int=3):
         self.resolution = resolution
         self.color_depth = color_depth

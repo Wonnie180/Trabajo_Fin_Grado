@@ -35,6 +35,8 @@ dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters = cv2.aruco.DetectorParameters_create()
 aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
 
+
+
 possible_orientations = [0, 90, 180, 270]
 num_tropas = 1
 
@@ -133,72 +135,32 @@ async def randomMovements(tropas):
         elif movimiento_aleatorio == 3:
             tropas[tropa_Seleccionada].Turn_Left()
     return
-
-def main_random():
-    tropas = []
+def prepare():
     for i in range(num_tropas):
-        tropa = FakeTropa(
-            id=next(current_id),
-            communication=None,
-            color=Led(255, 0, 0),
-            matrix=video_source.Get_Frame(),
-            footprint=Generate_new_footprint(
-                border_color=Led(255, 0, 0).Get_RGB()),
-        )
-
-        random_x = randrange(resolution.Get_Width()) + tropa.Get_Footprint().shape[0]
-        random_y = randrange(resolution.Get_Height()) + tropa.Get_Footprint().shape[1]
+        tropa_id = aruco.Get_Current_Id()
         random_orientation = possible_orientations[(randrange(4))]
-        tropa.Place_Tropa(random_x, random_y, random_orientation)
+        footprint = cv2.cvtColor(aruco.Generate_new_Id(50), cv2.COLOR_GRAY2RGB)
+       
+        tropa = FakeTropa(
+            id=tropa_id,
+            position=Position_2D((100, 200, random_orientation)),
+            communication=None,
+            color=Color((255, 0, 0)),
+            matrix=video_source.Get_Frame(),
+            footprint=footprint,
+        )
         tropas.append(tropa)
-    asyncio.run(randomMovements(tropas))
+    #asyncio.run(randomMovements(tropas))
 
-
-
-def draw_aruco(corners, ids):
-    rectangles = []
-    circles = []
-    texts = []
-    if len(corners) > 0:
-        for (markerCorner, markerID) in zip(corners, ids):
-            corners = markerCorner.reshape((4, 2))
-            (topLeft, topRight, bottomRight, bottomLeft) = corners
-
-            topRight = (int(topRight[0]), int(topRight[1]))
-            bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
-            bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
-            topLeft = (int(topLeft[0]), int(topLeft[1]))
-
-            
-            cX = int((topLeft[0] + bottomRight[0]) / 2.0)
-            cY = int((topLeft[1] + bottomRight[1]) / 2.0)
-
-            rectangle = Rectangle_Drawable(topLeft, topRight, bottomLeft, bottomRight, Color((255,0,0)))
-            circle = Circle_Drawable((cX,cY), 4, Color((0,0,255)))
-            text = Text_Drawable(topLeft, str(markerID),Color((255,0,255)))
-
-            rectangles.append(rectangle)
-            circles.append(circle)
-            texts.append(text)
-
-    video_playback.Add_Rectangles(rectangles)
-    video_playback.Add_Circles(circles)
-    video_playback.Add_Texts(texts)
-            
-            
-def deteccion_aruco():
-    while not video_playback.Has_To_Stop():
-        (corners, ids, _) = aruco.Detect_Aruco(video_source.Get_Frame())
-        draw_aruco(corners, ids)
-        
 
 if __name__ == "__main__":
+    prepare()
     thread_aruco = Thread(target=aruco.Run, args=()).start()
-    #thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
+    thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
     thread_video = Thread(target=video_playback.Run, args=())
     thread_video.start()
     #print(tropas[0].position.x, tropas[0].position.y)
-    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
+    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
     #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
     thread_video.join()
 

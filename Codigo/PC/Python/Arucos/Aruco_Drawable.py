@@ -19,7 +19,6 @@ from Utils.Frame import Frame
 from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
 from VideoSource.IVideoSource import IVideoSource
 from AbleInterfaces.Runnable import Runnable
-import asyncio
 
 class Aruco_Drawable(Aruco, Runnable):
     video_source: IVideoSource
@@ -34,7 +33,7 @@ class Aruco_Drawable(Aruco, Runnable):
 
     def Run(self):
         while not self.has_to_stop:
-            sleep(0.05)
+            sleep(0.01)
             self.Detect_Aruco(self.video_source.Get_Frame())
             self.Draw_Detected_Aruco()
         return

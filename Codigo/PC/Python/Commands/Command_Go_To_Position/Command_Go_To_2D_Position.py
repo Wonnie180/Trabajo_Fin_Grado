@@ -19,7 +19,7 @@ from time import sleep
 class Command_Go_To_2D_Position(ICommand_Go_To_Position):
     distance: Distance = Distance()
     real_position:any = None
-    threshold: int = 30
+    threshold: int = 100
 
     def __init__(self, aruco: IAruco, tropa: ITropa, position: Position_2D):
         super().__init__(aruco, tropa, position)
@@ -31,7 +31,7 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             self.tropa.Move_Forward()
 
     def Have_Finished_Command(self) -> bool:
-        self.real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
+        self.real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)        
         if self.real_position is None:
             return False
         return self.distance.Manhattan(self.real_position, [self.position.x, self.position.y]) < self.threshold
