@@ -12,7 +12,6 @@ sys.path.append(
 from Commands.ICommand import ICommand
 from Tropas.ITropa import ITropa
 from Color.Color import Color
-from Comunicaciones.ICommunication import TROPA_ACTIONS
 
 
 class Command_Change_Color(ICommand):
@@ -27,14 +26,19 @@ class Command_Change_Color(ICommand):
 
     def Execute_Command(self):
         if not self.Have_Finished_Command():
-            self.tropa.color.Set_RGB(self.color.RGB)
-            self.tropa.communication.Send_Data(
-                TROPA_ACTIONS.CHANGE_COLOR, self.tropa.color.RGB
-            )
+            self.tropa.Set_Color(self.color.RGB)
             self.have_finished = True
 
     def Have_Finished_Command(self) -> bool:
         return self.have_finished
+
+    def Get_Type(self):
+        return type(self)
+
+    def Equal(self, command):
+        return (
+            self.Get_Type() == command.Get_Type() and self.tropa.id == command.tropa.id
+        )
 
 
 if __name__ == "__main__":

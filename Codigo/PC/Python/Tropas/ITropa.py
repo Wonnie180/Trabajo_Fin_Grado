@@ -46,3 +46,7 @@ class ITropa(metaclass=ABCMeta):
     @abstractmethod
     def Turn_Right(self):
         pass
+
+    @abstractmethod
+    def Set_Color(self, color: Color):
+        pass

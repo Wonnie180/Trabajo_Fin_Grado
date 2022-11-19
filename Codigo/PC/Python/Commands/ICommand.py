@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABCMeta
 
-class ICommand(metaclass=ABCMeta):
+class ICommand(metaclass=ABCMeta):        
+    executing: bool = False
 
     def __init__(self):
         super().__init__()
@@ -11,4 +12,12 @@ class ICommand(metaclass=ABCMeta):
 
     @abstractmethod
     def Have_Finished_Command(self) -> bool:
+        pass
+
+    @abstractmethod
+    def Get_Type(self):
+        pass
+
+    @abstractmethod
+    def Equal(self, command):
         pass

@@ -17,7 +17,7 @@ class CommandManager(ICommandManager, Runnable):
         super().__init__()
 
     def Run(self):
-        while not self.has_to_stop:
+        while not self.has_to_stop:            
             self.Execute_Commands()            
             sleep(0.0008)
 
@@ -25,24 +25,53 @@ class CommandManager(ICommandManager, Runnable):
         self.has_to_stop = True
 
     def Add_Command(self, command: ICommand):
-        self.commands.append(command)
+        if self.Already_Similar_Command_In_List(self.executing_commands, command):
+            self.commands.append(command)
+        else:
+            self.Add_Commands_To_Be_Executed([command])
 
-    def Execute_Commands(self):
-        if len(self.commands) < 1:            
-            return
+    def Already_Similar_Command_In_List(self,command_list: List[ICommand], command: ICommand):
+        for command_in_list in command_list:
+            if command_in_list.Equal(command):
+                return True
+        return False
+        
+    def Get_Same_Type_Command_From_List(self,command_list: List[ICommand], command: ICommand):
+        for command_in_list in command_list:
+            if command_in_list.Equal(command):
+                return command_in_list
+        return None
+
+    def Execute_Commands(self):   
         commands_to_remove : List[ICommand] = []
-        for command in self.commands:
+        commands_to_add : List[ICommand] = []
+        
+        for command in self.executing_commands:            
             command.Execute_Command()
             if command.Have_Finished_Command():
                 commands_to_remove.append(command)
+                self.Add_Waiting_Command(commands_to_add, command)
 
+        self.Add_Commands_To_Be_Executed(commands_to_add)
         self.Remove_Finished_Commands(commands_to_remove)
-                
+    
+    def Add_Waiting_Command(self, commands_to_add: List[ICommand], command_finished: ICommand):
+        if self.Already_Similar_Command_In_List(commands_to_add, command_finished):
+            return
+        
+        command = self.Get_Same_Type_Command_From_List(self.commands, command_finished)
+        if command is not None:
+            self.commands.remove(command)
+            self.Add_Commands_To_Be_Executed([command])
+
+
+    def Add_Commands_To_Be_Executed(self, commands_to_add: List[ICommand]):
+        self.executing_commands = self.executing_commands + commands_to_add
+
     def Remove_Finished_Commands(self, commands_to_remove: List[ICommand]):
         for command in commands_to_remove:
-            if command in self.commands:
-                self.commands.remove(command)
-        commands_to_remove = []
+            if command in self.executing_commands:
+                self.executing_commands.remove(command)        
 
 
 if __name__ == "__main__":

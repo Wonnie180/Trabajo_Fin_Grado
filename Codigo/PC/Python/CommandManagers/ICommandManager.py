@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 from Commands.ICommand import ICommand
 
 class ICommandManager(metaclass=ABCMeta):
+    executing_commands: List[ICommand] = []
     commands: List[ICommand] = []
     
     def __init__(self):        

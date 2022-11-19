@@ -41,17 +41,25 @@ detector_parameters = cv2.aruco.DetectorParameters_create()
 aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
 
 
+tropa_seleccionada = None
+destino = None
+
+
 def callback_test(event, x, y, flags, param):
     video_pb = param[0]
-
+    global tropa_seleccionada
+    global destino
+    
     if event == cv2.EVENT_LBUTTONDOWN:
-        tropas[0].Move_Forward()
-    #     self.Add_Coordinate_Rectangle((x, y))
-    # elif event == cv2.EVENT_LBUTTONUP:
-    #     self.Add_Coordinate_Rectangle((x, y))
-    elif event == cv2.EVENT_RBUTTONUP:
-        #     self.Remove_Coordinate_Rectangle()
-        tropas[0].Turn_Left()
+        if tropa_seleccionada is None:
+            tropa_seleccionada = tropas[0]
+        else:
+            destino = Position_2D([x,y,0])
+            command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        tropa_seleccionada = None
+        destino = None
 
 
 video_playback.callback = callback_test
@@ -86,7 +94,7 @@ async def randomMovements(tropas):
     return
 
 
-num_tropas = 4
+num_tropas = 1
 
 
 def prepare():
@@ -116,18 +124,28 @@ def prepare():
         tropas.append(tropa)
     # asyncio.run(randomMovements(tropas))
 
+def end_of_loop():
+    raise StopIteration
 
 if __name__ == "__main__":
     import numpy as np
+    from itertools import takewhile
+
+    from Commands.Command_Change_Color.Command_Change_Color import Command_Change_Color
 
     prepare()
+
     thread_aruco = Thread(target=aruco.Run, args=()).start()
     thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
     thread_video = Thread(target=video_playback.Run, args=())
     thread_video.start()
 
-    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
-    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
+    #print(tropas[0].position.Get_Position())
+    # Position: [486, 530, 0]
+    
+    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
+    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
+    #command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((486, 200,0))))
 
     thread_video.join()
     aruco.Stop()

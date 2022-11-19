@@ -118,6 +118,10 @@ class FakeTropa(ITropa):
         self.footprint = np.rot90(self.footprint, 3)
         self.Update_Matrix(self.position.x, self.position.y)
 
+    def Set_Color(self, color: Color):
+        self.color = color
+        self.communication.Send_Data(TROPA_ACTIONS.CHANGE_COLOR, Color.RGB)
+
     def Update_Matrix(self, pos_x, pos_y):
         self.matrix[
             self.position.x : self.position.x + self.footprint.shape[0],
