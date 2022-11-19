@@ -6,6 +6,7 @@ from itertools import count
 from random import randrange, seed
 
 # Custom Libraries
+from Comunicaciones.FakeCommunication import FakeCommunication
 from Utils.Resolution import Resolution
 from Tropas.FakeTropa import FakeTropa
 from VideoSource.FakeVideo import FakeVideo
@@ -15,7 +16,9 @@ from Positions.Position_2D import Position_2D
 from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
-from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import Command_Go_To_2D_Position
+from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import (
+    Command_Go_To_2D_Position,
+)
 
 tropas = []
 command_manager = CommandManager()
@@ -40,15 +43,16 @@ aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_play
 
 def callback_test(event, x, y, flags, param):
     video_pb = param[0]
-    
-    if event == cv2.EVENT_LBUTTONDOWN:        
-        tropas[0].Move_Forward()       
+
+    if event == cv2.EVENT_LBUTTONDOWN:
+        tropas[0].Move_Forward()
     #     self.Add_Coordinate_Rectangle((x, y))
-    #elif event == cv2.EVENT_LBUTTONUP:
+    # elif event == cv2.EVENT_LBUTTONUP:
     #     self.Add_Coordinate_Rectangle((x, y))
     elif event == cv2.EVENT_RBUTTONUP:
-    #     self.Remove_Coordinate_Rectangle()
+        #     self.Remove_Coordinate_Rectangle()
         tropas[0].Turn_Left()
+
 
 video_playback.callback = callback_test
 
@@ -81,7 +85,9 @@ async def randomMovements(tropas):
         print(aruco.Get_Position_Of_Aruco(0))
     return
 
+
 num_tropas = 4
+
 
 def prepare():
     for i in range(num_tropas):
@@ -100,28 +106,29 @@ def prepare():
         tropa = FakeTropa(
             id=tropa_id,
             position=Position_2D((random_x, random_y, random_orientation)),
-            communication=None,
+            communication=FakeCommunication(),
             color=Color((255, 0, 0)),
             matrix=common_frame.frame,
             footprint=footprint,
         )
         tropa.Turn_Left()
+        tropa.Turn_Right()
         tropas.append(tropa)
-    #asyncio.run(randomMovements(tropas))
+    # asyncio.run(randomMovements(tropas))
 
 
 if __name__ == "__main__":
     import numpy as np
+
     prepare()
     thread_aruco = Thread(target=aruco.Run, args=()).start()
     thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
     thread_video = Thread(target=video_playback.Run, args=())
     thread_video.start()
-    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
-    # command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
-    thread_video.join()
 
+    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((770, 510,0))))
+    command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropas[0], Position_2D((100, 510,0))))
+
+    thread_video.join()
     aruco.Stop()
     command_manager.Stop()
-
-

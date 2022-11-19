@@ -24,8 +24,8 @@ class Bluetooth(ICommunication):
     def Get_Devices(self):
         return self.devices
 
-    def Send_Data(self, action: TROPA_ACTIONS, data: list[uint8]):
-        print(data)
+    def Send_Data(self, action: uint8, data: list[uint8]):
+        print(action, data)
 
     def Get_Data(self):
         print("recibido");  

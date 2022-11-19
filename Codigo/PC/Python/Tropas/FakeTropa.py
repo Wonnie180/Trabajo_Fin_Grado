@@ -9,18 +9,16 @@ if __name__ != "__main__":
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
+from ITropa import ITropa, TROPA_ACTIONS
 from Comunicaciones.ICommunication import ICommunication
-from Utils.Resolution import Resolution
 from Color.Color import Color
-from ITropa import ITropa
 from Positions.Position_2D import Position_2D
-from copy import deepcopy
 
 class FakeTropa(ITropa):
     matrix: np.ndarray = None
     footprint: np.ndarray = None
-    degrees_90 = 0
-    fake_position: Position_2D
+    degrees_45 = 0
+    position: Position_2D = None
 
     def __init__(
         self,
@@ -38,8 +36,7 @@ class FakeTropa(ITropa):
         self.footprint = footprint
         self.matrix = matrix
         self.position = position
-        self.fake_position = deepcopy(position)
-        super().__init__(id, communication, color, position)
+        super().__init__(id, communication, color)
 
     def isValidFootPrint(self, matrix, footprint):
         ndim = 2
@@ -48,19 +45,11 @@ class FakeTropa(ITropa):
                 return False
         return True
 
-    def Place_Tropa(self, position: Position_2D):
-        self.position = position
-
-        self.matrix[
-            self.position.x : self.position.x + self.footprint.shape[0],
-            self.position.y : self.position.y + self.footprint.shape[1],
-            :,
-        ] = self.footprint
-
     def Move_Forward(self):
-        pos_y = self.fake_position.y
-        pos_x = self.fake_position.x
-        angle = self.fake_position.angle
+        self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD, True)
+        pos_y = self.position.y
+        pos_x = self.position.x
+        angle = self.position.angle
 
         if angle == 0:
             pos_y += 1
@@ -86,9 +75,10 @@ class FakeTropa(ITropa):
         self.Update_Matrix(pos_x, pos_y)
 
     def Move_Backwards(self):
-        pos_y = self.fake_position.y
-        pos_x = self.fake_position.x
-        angle = self.fake_position.angle
+        self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
+        pos_y = self.position.y
+        pos_x = self.position.x
+        angle = self.position.angle
 
         if angle == 0:
             pos_y -= 1
@@ -114,21 +104,24 @@ class FakeTropa(ITropa):
         self.Update_Matrix(pos_x, pos_y)
 
     def Turn_Left(self):
-        self.fake_position.angle = (self.fake_position.angle + 90) % 360
+        self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
 
-        if self.fake_position.angle % 90 == 0:
+        self.position.angle = (self.position.angle + 90) % 360
+
+        if self.position.angle % 90 == 0:
             self.footprint = np.rot90(self.footprint, 1)
-            self.Update_Matrix(self.fake_position.x, self.fake_position.y)
+            self.Update_Matrix(self.position.x, self.position.y)
 
     def Turn_Right(self):
-        self.fake_position.angle = (self.fake_position.angle - 90) % 360
+        self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
+        self.position.angle = (self.position.angle - 90) % 360
         self.footprint = np.rot90(self.footprint, 3)
-        self.Update_Matrix(self.fake_position.x, self.fake_position.y)
+        self.Update_Matrix(self.position.x, self.position.y)
 
     def Update_Matrix(self, pos_x, pos_y):
         self.matrix[
-            self.fake_position.x : self.fake_position.x + self.footprint.shape[0],
-            self.fake_position.y : self.fake_position.y + self.footprint.shape[1],
+            self.position.x : self.position.x + self.footprint.shape[0],
+            self.position.y : self.position.y + self.footprint.shape[1],
             :,
         ] = (255, 255, 255)
 
@@ -138,28 +131,7 @@ class FakeTropa(ITropa):
             :,
         ] = self.footprint
 
-        self.fake_position.Set_Position([pos_x, pos_y, self.position.angle])
-
+        self.position.Set_Position([pos_x, pos_y, self.position.angle])
 
 if __name__ == "__main__":
-    from Aruco.Aruco import Aruco
-    from Leds.Led import Led
-
-    resolution = Resolution(600, 600)
-
-    aruco = Aruco()
-    aruco.Generate_Dictionary()
-    footprint = cv2.cvtColor(
-        aruco.Generate_new_Id(Resolution(100, 100)), cv2.COLOR_BGR2RGB
-    )
-
-    frame = np.zeros([resolution.Get_Width(), resolution.Get_Height(), 3])
-    led = Led(255, 0, 0)
-    prueba = FakeTropa(1, None, led, frame, footprint, Position_2D([0, 0, 0]))
-
-    prueba.Turn_Right()
-    for i in range(50):
-        prueba.Move_Forward()
-
-    cv2.imshow("asas", frame)
-    cv2.waitKey(0)
+    i = 0

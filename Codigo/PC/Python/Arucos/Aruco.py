@@ -1,6 +1,7 @@
 import os
 import sys
 import cv2
+from numpy import squeeze
 
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
@@ -26,13 +27,13 @@ class Aruco(IAruco):
     def Detect_Aruco(self, frame):
         (self.corners, self.ids, self.rejected) = cv2.aruco.detectMarkers(
             frame, self.dictionary, parameters=self.detector_parameters
-        )    
-        self.ids = self.ids.flatten()
+        )
    
     def Get_Position_Of_Aruco(self, id):
         if self.ids is None or not id in self.ids:
             return None
-        return (self.corners[where(self.ids == id)[0][0]].mean(axis=1))[0].astype(int)
+
+        return (self.corners[squeeze(self.ids, axis=1).tolist().index(id)].mean(axis=1))[0].astype(int)
         
 
 

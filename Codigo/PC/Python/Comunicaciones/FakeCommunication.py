@@ -9,10 +9,9 @@ sys.path.append(
     os.path.join(os.path.dirname(__file__), ".." + os.path.sep)
 )
 
-from ICommunication import ICommunication, TROPA_ACTIONS
+from ICommunication import ICommunication
 
 class FakeCommunication(ICommunication):
-    datos_simulados = ""
     def __init__(self):
         self._interface = None
         super().__init__()
@@ -23,11 +22,12 @@ class FakeCommunication(ICommunication):
     def Get_Devices(self):
         return self.devices
 
-    def Send_Data(self, action: TROPA_ACTIONS, data: list[uint8]):
-        print("Enviado: Acción->",action.value," Datos->",data)
+    def Send_Data(self, action: uint8, data: list[uint8]):
+        self.sended_data = [action,data]
+        print("Enviado: Acción->",action," Datos->",data)
 
     def Get_Data(self):
-        return "Recibido: "+self.datos_simulados
+        return self.received_data
 
 
 if __name__ == '__main__':
