@@ -19,7 +19,7 @@ class CommandManager(ICommandManager, Runnable):
     def Run(self):
         while not self.has_to_stop:            
             self.Execute_Commands()            
-            sleep(0.0008)
+            sleep(0.001)
 
     def Stop(self):
         self.has_to_stop = True

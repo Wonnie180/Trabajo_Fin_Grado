@@ -10,14 +10,24 @@ from Commands.ICommand import ICommand
 from Tropas.ITropa import ITropa
 from Positions.IPosition import IPosition
 from Arucos.IAruco import IAruco
+from Utils.Distances import Distance
 
 class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
     aruco: IAruco
     tropa: ITropa
-    position: IPosition
-    def __init__(self,aruco: IAruco, tropa:ITropa, position:IPosition):
+    real_position: IPosition
+    objective_position: IPosition
+    distance_threshold: int
+    distance: Distance = Distance()
+
+
+
+
+
+    def __init__(self,aruco: IAruco, tropa:ITropa,objective_position:IPosition, distance_threshold:int):
         self.aruco = aruco
         self.tropa = tropa
-        self.position = position
+        self.objective_position = objective_position
+        self.distance_threshold = distance_threshold
         super().__init__()
 

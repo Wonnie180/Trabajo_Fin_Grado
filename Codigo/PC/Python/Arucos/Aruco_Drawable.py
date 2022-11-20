@@ -33,8 +33,8 @@ class Aruco_Drawable(Aruco, Runnable):
 
     def Run(self):
         while not self.has_to_stop:
-            sleep(0.005)
             self.Detect_Aruco(self.video_source.Get_Frame())
+            sleep(0.0000)
             self.Draw_Detected_Aruco()
         return
 

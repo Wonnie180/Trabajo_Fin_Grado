@@ -17,7 +17,7 @@ from Positions.Position_2D import Position_2D
 class FakeTropa(ITropa):
     matrix: np.ndarray = None
     footprint: np.ndarray = None
-    degrees_45 = 0
+    degree_step = 45
     position: Position_2D = None
 
     def __init__(
@@ -106,15 +106,14 @@ class FakeTropa(ITropa):
     def Turn_Left(self):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
 
-        self.position.angle = (self.position.angle + 90) % 360
-
-        if self.position.angle % 90 == 0:
-            self.footprint = np.rot90(self.footprint, 1)
-            self.Update_Matrix(self.position.x, self.position.y)
+        self.position.angle = (self.position.angle + self.degree_step) % 360
+        self.footprint = np.rot90(self.footprint, 1)
+        self.Update_Matrix(self.position.x, self.position.y)
 
     def Turn_Right(self):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
-        self.position.angle = (self.position.angle - 90) % 360
+
+        self.position.angle = (self.position.angle - self.degree_step) % 360
         self.footprint = np.rot90(self.footprint, 3)
         self.Update_Matrix(self.position.x, self.position.y)
 
