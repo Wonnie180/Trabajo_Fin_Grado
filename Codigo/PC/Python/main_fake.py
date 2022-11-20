@@ -38,6 +38,7 @@ video_source = FakeVideo(common_frame)
 video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters = cv2.aruco.DetectorParameters_create()
+detector_parameters.cornerRefinementMethod = 1
 aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_playback)
 
 
@@ -67,7 +68,7 @@ video_playback.callback = callback_test
 possible_orientations = [0, 90, 180, 270]
 
 
-num_tropas = 1
+num_tropas = 3
 
 
 def prepare():
@@ -94,6 +95,7 @@ def prepare():
         )
         tropa.Turn_Left()
         tropa.Turn_Right()
+        tropa.Turn_Left()
         tropas.append(tropa)
 
 

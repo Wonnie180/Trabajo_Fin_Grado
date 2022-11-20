@@ -11,6 +11,7 @@ from Tropas.ITropa import ITropa
 from Positions.IPosition import IPosition
 from Arucos.IAruco import IAruco
 from Utils.Distances import Distance
+from Utils.Angles import Angle
 
 class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
     aruco: IAruco
@@ -19,6 +20,7 @@ class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
     objective_position: IPosition
     distance_threshold: int
     distance: Distance = Distance()
+    angles: Angle = Angle()
 
 
 

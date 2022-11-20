@@ -17,73 +17,58 @@ import math
 
 
 class Command_Go_To_2D_Position(ICommand_Go_To_Position):
-    mock = None
-    CONST_180_DIV_PI = 180 / math.pi
-    angle_threshold = 44
-
+    threshold_angle = 20
+    previous_angle = 0
+    
     def __init__(
         self,
         aruco: IAruco,
         tropa: ITropa,
         objective_position: Position_2D,
-        distance_threshold: int = 20,
+        distance_threshold: int = 10,
     ):
+        if (tropa.distance_step > distance_threshold):
+            distance_threshold = tropa.distance_step
+        
         super().__init__(
             aruco, tropa, objective_position, distance_threshold
         )
-
-    def Get_Nearest_Angle_Step(self, angle, angle_step):
-        return round(float(angle) / angle_step) * angle_step
-
-    def Calculate_Angle(self):
-        return (
-            (
-                math.atan2(
-                    self.real_position.x - self.objective_position.x,
-                    self.real_position.y - self.objective_position.y,
-                )
-                * self.CONST_180_DIV_PI
-                + 360
-                + 90 # Rotar 90 grados porque Cv2 usa (y,x)
-            )
-        ) % 360
 
     def Execute_Command(self):
         if not self.Have_Finished_Command():
 
             if self.real_position is None:
                 return
-
-            angle = self.Calculate_Angle()
-     
-            self.Movement_Action(
-                self.Get_Nearest_Angle_Step(angle, self.tropa.degree_step)
-            )
-
-    def Has_To_Rotate_Left(self, angle):
-        print(angle)
-        if angle < 180:
-            return angle + 90 <= self.real_position.angle <= angle + 180
-        else:
-            aux = (angle + 90) % 360
-            return aux <= self.real_position.angle <= aux + 90
+                        
+            angle = self.angles.Calculate_Angle(self.real_position, self.objective_position, offset=90)
             
+            # Evita el efecto "Peonza"
+            difference_between_angles = self.angles.Get_Difference_Between_Angles(angle, self.previous_angle)
+            if (difference_between_angles >= self.threshold_angle):                              
+                    self.previous_angle = angle         
+
+            next_angle_step = (self.angles.Get_Nearest_Angle_Step(self.previous_angle, self.tropa.degree_step)) % 360
+
+            self.Movement_Action(next_angle_step)
+        else:
+            print("Tropa:",self.tropa.id,"Ha llegado a su destino...")
+                    
 
     def Have_Finished_Command(self) -> bool:
-        if self.mock is not None:
-            return True
-        real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
+        if self.tropa.Is_Moving():
+            return False
 
+        real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
+    
         if real_position is None:
             self.real_position = None
             return False
 
-        # TODO: Cambiar de self.tropa.position.angle a la posición que devuelva el Get_Position_Of_Aruco
         self.real_position = Position_2D(
-            [real_position[0], real_position[1], self.Get_Nearest_Angle_Step(self.tropa.position.angle, self.tropa.degree_step)]
+            [real_position[0], real_position[1], real_position[2]]
         )
-
         return self.Have_Reached_Objective()
+
 
     def Get_Type(self):
         return type(self)
@@ -100,10 +85,17 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         )
 
     def Is_Facing_Objective(self, angle):
-        return (angle-self.angle_threshold) <= self.real_position.angle <= (angle+self.angle_threshold)
+        low_angle =  (angle-self.threshold_angle) % 360
+        high_angle = (angle+self.threshold_angle) % 360
+        return self.angles.Is_Angle_In_Range(self.real_position.angle,low_angle,high_angle)
 
     def Is_Back_Facing_Objective(self, angle):
-        return self.Is_Facing_Objective((angle + 180) % 360)
+        backwards_angle = (angle + 180) % 360
+        return self.Is_Facing_Objective(backwards_angle)
+
+
+    def Has_To_Rotate_Left(self, angle):
+        return self.angles.Get_Difference_Between_Angles_CounterClock(self.real_position.angle, angle) <= 180
 
     def Movement_Action(self, angle):
         if self.Is_Facing_Objective(angle):
@@ -111,7 +103,7 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         elif self.Is_Back_Facing_Objective(angle):
             self.tropa.Move_Backwards()
         elif self.Has_To_Rotate_Left(angle):
-            self.tropa.Turn_Left()
+           self.tropa.Turn_Left()
         else:
             self.tropa.Turn_Right()
 
@@ -132,6 +124,20 @@ if __name__ == "__main__":
     # Angulo 0-> [559, 579, 0] [554, 510, 0] | 40
     # ngulo 180-> [487, 514, 0] [554, 510, 0] | 130
 
+    Cx = 10
+    Cy = 10
+
+    x1 = 15
+    y1 = 11
+
+    radian = math.atan2(y1 - Cy, x1 - Cx);
+    angle = (radian * (180 / math.pi))%360;
+    # if (angle < 0.0):
+    #     angle += 360.0;
+
+    print((angle-135)%360)
+
+    exit()
     dy = 0
     dx = 0
 
@@ -156,22 +162,15 @@ if __name__ == "__main__":
     # a = c-1
     print(a, pos_actual, obj)
 
-    print
+    radian = math.atan2(pos_actual[1] - obj[1], pos_actual[0] - obj[0]);
+    angle = radian * (180 / math.PI);
+    if (angle < 0.0): 
+         angle += 360.0;
 
-    print(
-        test.Get_Nearest_Angle_Step(
-            (
-                (
-                    math.atan2(pos_actual[1] - obj[1], pos_actual[0] - obj[0])
-                    * 180
-                    / math.pi
-                    + 360
-                )
-            )
-            % 360,
-            45,
-        )
-    )
+    print(angle)
+        
+
+    
     exit()
     # a = np.array([6,0])
     # b = np.array([0,0])

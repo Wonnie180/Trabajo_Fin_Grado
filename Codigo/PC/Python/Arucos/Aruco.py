@@ -10,7 +10,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
 from IAruco import IAruco
 from Utils.Frame import Frame
-from numpy import where
+from Utils.Angles import Angle
+
+angles = Angle()
+
 class Aruco(IAruco):
 
     def __init__(self, dictionary, detector_parameters):
@@ -33,7 +36,13 @@ class Aruco(IAruco):
         if self.ids is None or not id in self.ids:
             return None
 
-        return (self.corners[squeeze(self.ids, axis=1).tolist().index(id)].mean(axis=1))[0].astype(int)
+        corners = self.corners[squeeze(self.ids, axis=1).tolist().index(id)]
+        
+        center = (corners.mean(axis=1)[0]).astype(int)
+        angle = (angles.Get_Angle_Aruco(center, corners[0][0]))
+
+        position = [center[0], center[1], angle]
+        return position
         
 
 

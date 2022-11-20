@@ -24,12 +24,17 @@ class ITropa(metaclass=ABCMeta):
     id: uint8
     communication: ICommunication
     color: Color
+    is_moving: bool = False
 
     def __init__(self, id: uint8, communication: ICommunication, color: Color):
         self.id = id
         self.communication = communication
         self.color = color
         super().__init__()
+
+    @abstractmethod
+    def Is_Moving(self):
+        pass
 
     @abstractmethod
     def Move_Forward(self):

@@ -17,7 +17,8 @@ from Positions.Position_2D import Position_2D
 class FakeTropa(ITropa):
     matrix: np.ndarray = None
     footprint: np.ndarray = None
-    degree_step = 45
+    degree_step = 90
+    distance_step = 2
     position: Position_2D = None
 
     def __init__(
@@ -38,6 +39,9 @@ class FakeTropa(ITropa):
         self.position = position
         super().__init__(id, communication, color)
 
+    def Is_Moving(self):
+        return self.is_moving
+
     def isValidFootPrint(self, matrix, footprint):
         ndim = 2
         for dimension in range(ndim):
@@ -47,75 +51,89 @@ class FakeTropa(ITropa):
 
     def Move_Forward(self):
         self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD, True)
-        pos_y = self.position.y
-        pos_x = self.position.x
-        angle = self.position.angle
+        self.is_moving = True
+        for i in range(self.distance_step):
+            pos_y = self.position.y
+            pos_x = self.position.x
+            angle = self.position.angle
 
-        if angle == 0:
-            pos_y += 1
-        if angle == 45:
-            pos_y += 1
-            pos_x -= 1
-        elif angle == 90:
-            pos_x -= 1
-        elif angle == 135:
-            pos_x -= 1
-            pos_y -= 1
-        elif angle == 180:
-            pos_y -= 1
-        elif angle == 225:
-            pos_y -= 1
-            pos_x += 1
-        elif angle == 270:
-            pos_x += 1
-        elif angle == 315:
-            pos_x += 1
-            pos_y += 1
+            if angle == 0:
+                pos_x -= 1
+            # elif angle == 45:
+            #     pos_y += 1
+            #     pos_x -= 1
+            elif angle == 90:
+                pos_y -= 1
+            # elif angle == 135:
+            #     pos_x -= 1
+            #     pos_y -= 1
+            elif angle == 180:
+                pos_x += 1
+            # elif angle == 225:
+            #     pos_y -= 1
+            #     pos_x += 1
+            elif angle == 270:
+                pos_y += 1
+            # elif angle == 315:
+            #     pos_x += 1
+            #     pos_y += 1
 
-        self.Update_Matrix(pos_x, pos_y)
+            self.Update_Matrix(pos_x, pos_y)
+        self.is_moving = False
 
     def Move_Backwards(self):
         self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
-        pos_y = self.position.y
-        pos_x = self.position.x
-        angle = self.position.angle
+        self.is_moving = True
+        for i in range(self.distance_step):
 
-        if angle == 0:
-            pos_y -= 1
-        if angle == 45:
-            pos_y -= 1
-            pos_x += 1
-        elif angle == 90:
-            pos_x += 1
-        elif angle == 135:
-            pos_x += 1
-            pos_y += 1
-        elif angle == 180:
-            pos_y += 1
-        elif angle == 225:
-            pos_y += 1
-            pos_x -= 1
-        elif angle == 270:
-            pos_x -= 1
-        elif angle == 315:
-            pos_x -= 1
-            pos_y -= 1
+            pos_y = self.position.y
+            pos_x = self.position.x
+            angle = self.position.angle
 
-        self.Update_Matrix(pos_x, pos_y)
+            if angle == 0:
+                pos_x += 1
+            # elif angle == 45:
+            #     pos_y -= 1
+            #     pos_x += 1
+            elif angle == 90:
+                pos_y += 1
+            # elif angle == 135:
+            #     pos_x += 1
+            #     pos_y += 1
+            elif angle == 180:
+                pos_x -= 1
+            # elif angle == 225:
+            #     pos_y += 1
+            #     pos_x -= 1
+            elif angle == 270:
+                pos_y -= 1
+            # elif angle == 315:
+            #     pos_x -= 1
+            #     pos_y -= 1
 
-    def Turn_Left(self):
+            self.Update_Matrix(pos_x, pos_y)
+        self.is_moving = False
+
+    def Turn_Left(self):        
         self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
-
+        self.is_moving = True
+        
         self.position.angle = (self.position.angle + self.degree_step) % 360
         self.footprint = np.rot90(self.footprint, 1)
         self.Update_Matrix(self.position.x, self.position.y)
 
+        self.is_moving = False
+
     def Turn_Right(self):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
+        self.is_moving = True
 
         self.position.angle = (self.position.angle - self.degree_step) % 360
         self.footprint = np.rot90(self.footprint, 3)
         self.Update_Matrix(self.position.x, self.position.y)
+
+        self.is_moving = False
+    
 
     def Set_Color(self, color: Color):
         self.color = color
