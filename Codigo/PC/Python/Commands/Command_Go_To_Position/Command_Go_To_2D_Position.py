@@ -1,6 +1,5 @@
 import os
 import sys
-import cv2
 
 if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
@@ -16,50 +15,57 @@ from Arucos.IAruco import IAruco
 import math
 
 
+# Pathfinding parcial : Que mire solo un par de casillas por delante
+# Espacio de configuraciones ?
+
+
 class Command_Go_To_2D_Position(ICommand_Go_To_Position):
-    threshold_angle = 20
+    threshold_angle = 45
     previous_angle = 0
-    
+
     def __init__(
         self,
         aruco: IAruco,
         tropa: ITropa,
         objective_position: Position_2D,
-        distance_threshold: int = 10,
+        distance_threshold: int = 20,
     ):
-        if (tropa.distance_step > distance_threshold):
+        if tropa.distance_step > distance_threshold:
             distance_threshold = tropa.distance_step
-        
-        super().__init__(
-            aruco, tropa, objective_position, distance_threshold
-        )
+
+        super().__init__(aruco, tropa, objective_position, distance_threshold)
 
     def Execute_Command(self):
         if not self.Have_Finished_Command():
 
             if self.real_position is None:
                 return
-                        
-            angle = self.angles.Calculate_Angle(self.real_position, self.objective_position, offset=90)
-            
+
+            new_angle = self.angles.Get_Angle_Between_Points_CounterClock(
+                self.real_position.Get_Position(),
+                self.objective_position.Get_Position(),
+            )
+
+            difference_between_previous_and_new_angle = (
+                self.angles.Get_Difference_Between_Angles(new_angle, self.previous_angle)
+            )
+
             # Evita el efecto "Peonza"
-            difference_between_angles = self.angles.Get_Difference_Between_Angles(angle, self.previous_angle)
-            if (difference_between_angles >= self.threshold_angle):                              
-                    self.previous_angle = angle         
+            if difference_between_previous_and_new_angle < self.threshold_angle:
+                new_angle = self.previous_angle
+            else:
+                self.previous_angle = new_angle
 
-            next_angle_step = (self.angles.Get_Nearest_Angle_Step(self.previous_angle, self.tropa.degree_step)) % 360
-
-            self.Movement_Action(next_angle_step)
+            self.Movement_Action(new_angle)
         else:
-            print("Tropa:",self.tropa.id,"Ha llegado a su destino...")
-                    
+            print("Tropa:", self.tropa.id, "Ha llegado a su destino...")
 
     def Have_Finished_Command(self) -> bool:
         if self.tropa.Is_Moving():
             return False
 
         real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
-    
+
         if real_position is None:
             self.real_position = None
             return False
@@ -68,7 +74,6 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             [real_position[0], real_position[1], real_position[2]]
         )
         return self.Have_Reached_Objective()
-
 
     def Get_Type(self):
         return type(self)
@@ -85,17 +90,23 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         )
 
     def Is_Facing_Objective(self, angle):
-        low_angle =  (angle-self.threshold_angle) % 360
-        high_angle = (angle+self.threshold_angle) % 360
-        return self.angles.Is_Angle_In_Range(self.real_position.angle,low_angle,high_angle)
+        low_angle = (angle - self.threshold_angle) % 360
+        high_angle = (angle + self.threshold_angle) % 360
+        return self.angles.Is_Angle_In_Range(
+            self.real_position.angle, low_angle, high_angle
+        )
 
     def Is_Back_Facing_Objective(self, angle):
         backwards_angle = (angle + 180) % 360
         return self.Is_Facing_Objective(backwards_angle)
 
-
     def Has_To_Rotate_Left(self, angle):
-        return self.angles.Get_Difference_Between_Angles_CounterClock(self.real_position.angle, angle) <= 180
+        return (
+            self.angles.Get_Difference_Between_Angles_CounterClock(
+                self.real_position.angle, angle
+            )
+            <= 180
+        )
 
     def Movement_Action(self, angle):
         if self.Is_Facing_Objective(angle):
@@ -103,7 +114,7 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         elif self.Is_Back_Facing_Objective(angle):
             self.tropa.Move_Backwards()
         elif self.Has_To_Rotate_Left(angle):
-           self.tropa.Turn_Left()
+            self.tropa.Turn_Left()
         else:
             self.tropa.Turn_Right()
 
@@ -130,12 +141,12 @@ if __name__ == "__main__":
     x1 = 15
     y1 = 11
 
-    radian = math.atan2(y1 - Cy, x1 - Cx);
-    angle = (radian * (180 / math.pi))%360;
+    radian = math.atan2(y1 - Cy, x1 - Cx)
+    angle = (radian * (180 / math.pi)) % 360
     # if (angle < 0.0):
     #     angle += 360.0;
 
-    print((angle-135)%360)
+    print((angle - 135) % 360)
 
     exit()
     dy = 0
@@ -162,15 +173,13 @@ if __name__ == "__main__":
     # a = c-1
     print(a, pos_actual, obj)
 
-    radian = math.atan2(pos_actual[1] - obj[1], pos_actual[0] - obj[0]);
-    angle = radian * (180 / math.PI);
-    if (angle < 0.0): 
-         angle += 360.0;
+    radian = math.atan2(pos_actual[1] - obj[1], pos_actual[0] - obj[0])
+    angle = radian * (180 / math.PI)
+    if angle < 0.0:
+        angle += 360.0
 
     print(angle)
-        
 
-    
     exit()
     # a = np.array([6,0])
     # b = np.array([0,0])

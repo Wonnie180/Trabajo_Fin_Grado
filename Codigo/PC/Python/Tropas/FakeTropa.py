@@ -19,7 +19,6 @@ class FakeTropa(ITropa):
     footprint: np.ndarray = None
     degree_step = 90
     distance_step = 2
-    position: Position_2D = None
 
     def __init__(
         self,
@@ -57,26 +56,14 @@ class FakeTropa(ITropa):
             pos_x = self.position.x
             angle = self.position.angle
 
-            if angle == 0:
-                pos_x -= 1
-            # elif angle == 45:
-            #     pos_y += 1
-            #     pos_x -= 1
-            elif angle == 90:
-                pos_y -= 1
-            # elif angle == 135:
-            #     pos_x -= 1
-            #     pos_y -= 1
-            elif angle == 180:
+            if 315 < angle <= 360 or 0 <= angle < 45:
                 pos_x += 1
-            # elif angle == 225:
-            #     pos_y -= 1
-            #     pos_x += 1
-            elif angle == 270:
+            elif 45 < angle <= 135:
+                pos_y -= 1
+            elif 135 < angle <= 225:
+                pos_x -= 1
+            elif 225 < angle <= 315:
                 pos_y += 1
-            # elif angle == 315:
-            #     pos_x += 1
-            #     pos_y += 1
 
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False
@@ -90,26 +77,14 @@ class FakeTropa(ITropa):
             pos_x = self.position.x
             angle = self.position.angle
 
-            if angle == 0:
-                pos_x += 1
-            # elif angle == 45:
-            #     pos_y -= 1
-            #     pos_x += 1
-            elif angle == 90:
-                pos_y += 1
-            # elif angle == 135:
-            #     pos_x += 1
-            #     pos_y += 1
-            elif angle == 180:
+            if 315 < angle <= 360 or 0 <= angle < 45:
                 pos_x -= 1
-            # elif angle == 225:
-            #     pos_y += 1
-            #     pos_x -= 1
-            elif angle == 270:
+            elif 45 < angle <= 135:
+                pos_y += 1
+            elif 135 < angle <= 225:
+                pos_x += 1
+            elif 225 < angle <= 315:
                 pos_y -= 1
-            # elif angle == 315:
-            #     pos_x -= 1
-            #     pos_y -= 1
 
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False

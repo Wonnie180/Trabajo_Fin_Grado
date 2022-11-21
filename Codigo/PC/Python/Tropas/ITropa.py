@@ -6,6 +6,8 @@ from abc import abstractmethod, ABCMeta
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 
+
+from Positions.IPosition import IPosition
 from Comunicaciones.ICommunication import ICommunication
 from Color.Color import Color
 from enum import Enum
@@ -24,6 +26,7 @@ class ITropa(metaclass=ABCMeta):
     id: uint8
     communication: ICommunication
     color: Color
+    position: IPosition
     is_moving: bool = False
 
     def __init__(self, id: uint8, communication: ICommunication, color: Color):

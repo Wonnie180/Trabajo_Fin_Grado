@@ -30,6 +30,12 @@ class Position_2D(IPosition):
         if len(position) != 3:
             raise ValueError("Wrong length given for position Position_2D")
 
+    def Equals(self, position: IPosition, offset=0):
+        return  self.x - offset <= position.x <= self.x+offset and \
+                self.y - offset <= position.y <= self.y+offset
+
+        
+
 if __name__ == "__main__":
     test = Position_2D([1, 2,3])
     print(test.Get_Position())

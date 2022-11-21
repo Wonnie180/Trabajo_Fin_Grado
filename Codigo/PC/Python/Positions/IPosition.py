@@ -15,3 +15,7 @@ class IPosition(metaclass=ABCMeta):
     @abstractmethod
     def Check_Position_Length(self, position: list[int]):
         pass
+
+    @abstractmethod
+    def Equals(self, position: list[int], offset=0):
+        pass

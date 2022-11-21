@@ -1,9 +1,11 @@
 # System Libraries
 import asyncio
+from typing import List
 import cv2
 from threading import Thread
 from itertools import count
 from random import randrange, seed
+import numpy as np
 
 # Custom Libraries
 from Comunicaciones.FakeCommunication import FakeCommunication
@@ -16,9 +18,12 @@ from Positions.Position_2D import Position_2D
 from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
+from Tropas.ITropa import ITropa
 from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import (
     Command_Go_To_2D_Position,
 )
+
+SeleccionarTropa: callable = None
 
 tropas = []
 command_manager = CommandManager()
@@ -50,31 +55,47 @@ def callback_test(event, x, y, flags, param):
     video_pb = param[0]
     global tropa_seleccionada
     global destino
-    
+    global SeleccionarTropa
+
     if event == cv2.EVENT_LBUTTONDOWN:
         if tropa_seleccionada is None:
-            tropa_seleccionada = tropas[0]
+            tropa_seleccionada = SeleccionarTropa(tropas, Position_2D([y, x, 0]))
         else:
-            destino = Position_2D([x,y,0])
-            command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+            destino = Position_2D([x, y, 0])
+            command_manager.Add_Command(
+                Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino)
+            )
+            tropa_seleccionada = None
 
     elif event == cv2.EVENT_RBUTTONDOWN:
         tropa_seleccionada = None
         destino = None
 
+    def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
+        for tropa in tropas:
+            if tropa.position.Equals(position, offset=48):
+                return tropa
+
+        return None
+
 
 video_playback.callback = callback_test
 
-possible_orientations = [0, 90, 180, 270]
 
 
-num_tropas = 3
+num_tropas = 7
 
+def no_colissions(x,y,frame, footprint):
+    if frame.shape[0] < x+footprint.shape[0] or frame.shape[1] < y+footprint.shape[1]:
+        return False
+
+    window = frame[x:x+footprint.shape[0], y:y+footprint.shape[1]]
+    return  np.all(window == 255)
 
 def prepare():
     for i in range(num_tropas):
         tropa_id = aruco.Get_Current_Id()
-        random_orientation = possible_orientations[(randrange(4))]
+        random_orientation = (randrange(4)) + 1
         footprint = cv2.cvtColor(aruco.Generate_new_Id(50), cv2.COLOR_GRAY2RGB)
         while 1:
             random_x = randrange(resolution.Get_Width()) + footprint.shape[0]
@@ -82,20 +103,22 @@ def prepare():
             if (
                 random_x < resolution.Get_Width() - 100
                 and random_y < resolution.Get_Height() - 100
+                and no_colissions(random_x, random_y, common_frame.frame, footprint)
             ):
                 break
 
         tropa = FakeTropa(
             id=tropa_id,
-            position=Position_2D((random_x, random_y, random_orientation)),
+            position=Position_2D((random_x, random_y, 90)),
             communication=FakeCommunication(),
             color=Color((255, 0, 0)),
             matrix=common_frame.frame,
             footprint=footprint,
         )
-        tropa.Turn_Left()
-        tropa.Turn_Right()
-        tropa.Turn_Left()
+
+        for j in range(tropa_id+1):
+            tropa.Turn_Left()
+
         tropas.append(tropa)
 
 
@@ -105,7 +128,7 @@ if __name__ == "__main__":
     thread_aruco = Thread(target=aruco.Run, args=()).start()
     thread_cmdmgr = Thread(target=command_manager.Run, args=()).start()
     thread_video = Thread(target=video_playback.Run, args=())
-    
+
     thread_video.start()
     thread_video.join()
 
