@@ -82,15 +82,19 @@ def callback_test(event, x, y, flags, param):
 video_playback.callback = callback_test
 
 
+num_tropas = 5
 
-num_tropas = 7
 
-def no_colissions(x,y,frame, footprint):
-    if frame.shape[0] < x+footprint.shape[0] or frame.shape[1] < y+footprint.shape[1]:
+def no_colissions(x, y, frame, footprint):
+    if (
+        frame.shape[0] < x + footprint.shape[0]
+        or frame.shape[1] < y + footprint.shape[1]
+    ):
         return False
 
-    window = frame[x:x+footprint.shape[0], y:y+footprint.shape[1]]
-    return  np.all(window == 255)
+    window = frame[x : x + footprint.shape[0], y : y + footprint.shape[1]]
+    return np.all(window == 255)
+
 
 def prepare():
     for i in range(num_tropas):
@@ -109,15 +113,17 @@ def prepare():
 
         tropa = FakeTropa(
             id=tropa_id,
-            position=Position_2D((random_x, random_y, 90)),
+            position=Position_2D((random_y, random_x, 90)),
             communication=FakeCommunication(),
             color=Color((255, 0, 0)),
             matrix=common_frame.frame,
             footprint=footprint,
         )
 
-        for j in range(tropa_id+1):
-            tropa.Turn_Left()
+        # for j in range(tropa_id+1):
+        tropa.Turn_Left()
+        tropa.Turn_Left()
+        #tropa.Turn_Right()
 
         tropas.append(tropa)
 

@@ -20,8 +20,11 @@ import math
 
 
 class Command_Go_To_2D_Position(ICommand_Go_To_Position):
-    threshold_angle = 45
+    threshold_angle = 46
     previous_angle = 0
+    real_position = None
+    topLeft = None
+    movement_angle = None
 
     def __init__(
         self,
@@ -41,10 +44,13 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             if self.real_position is None:
                 return
 
-            new_angle = self.angles.Get_Angle_Between_Points_CounterClock(
-                self.real_position.Get_Position(),
-                self.objective_position.Get_Position(),
-            )
+            new_angle = (
+                self.angles.Get_Angle_Between_Points_CounterClock(
+                    self.real_position.Get_Position(),
+                    self.objective_position.Get_Position(),
+                ) - 90
+            ) % 360
+
 
             difference_between_previous_and_new_angle = (
                 self.angles.Get_Difference_Between_Angles(new_angle, self.previous_angle)
@@ -64,15 +70,14 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         if self.tropa.Is_Moving():
             return False
 
-        real_position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
-
-        if real_position is None:
+        position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
+        
+        if position is None:
             self.real_position = None
             return False
 
-        self.real_position = Position_2D(
-            [real_position[0], real_position[1], real_position[2]]
-        )
+        self.real_position = Position_2D(position)
+
         return self.Have_Reached_Objective()
 
     def Get_Type(self):
@@ -100,12 +105,12 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         backwards_angle = (angle + 180) % 360
         return self.Is_Facing_Objective(backwards_angle)
 
-    def Has_To_Rotate_Left(self, angle):
+    def Has_To_Rotate_Right(self, angle):
         return (
             self.angles.Get_Difference_Between_Angles_CounterClock(
                 self.real_position.angle, angle
             )
-            <= 180
+            > 180
         )
 
     def Movement_Action(self, angle):
@@ -113,10 +118,10 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             self.tropa.Move_Forward()
         elif self.Is_Back_Facing_Objective(angle):
             self.tropa.Move_Backwards()
-        elif self.Has_To_Rotate_Left(angle):
-            self.tropa.Turn_Left()
-        else:
+        elif self.Has_To_Rotate_Right(angle):
             self.tropa.Turn_Right()
+        else:
+            self.tropa.Turn_Left()
 
 
 if __name__ == "__main__":

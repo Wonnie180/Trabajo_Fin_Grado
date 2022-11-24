@@ -57,19 +57,19 @@ class FakeTropa(ITropa):
             angle = self.position.angle
 
             if 315 < angle <= 360 or 0 <= angle < 45:
-                pos_x += 1
-            elif 45 < angle <= 135:
-                pos_y -= 1
-            elif 135 < angle <= 225:
-                pos_x -= 1
-            elif 225 < angle <= 315:
                 pos_y += 1
+            elif 45 < angle <= 135:
+                pos_x -= 1
+            elif 135 < angle <= 225:
+                pos_y -= 1
+            elif 225 < angle <= 315:
+                pos_x += 1
 
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False
 
     def Move_Backwards(self):
-        self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
+        #self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
         self.is_moving = True
         for i in range(self.distance_step):
 
@@ -78,13 +78,13 @@ class FakeTropa(ITropa):
             angle = self.position.angle
 
             if 315 < angle <= 360 or 0 <= angle < 45:
-                pos_x -= 1
-            elif 45 < angle <= 135:
-                pos_y += 1
-            elif 135 < angle <= 225:
-                pos_x += 1
-            elif 225 < angle <= 315:
                 pos_y -= 1
+            elif 45 < angle <= 135:
+                pos_x += 1
+            elif 135 < angle <= 225:
+                pos_y += 1
+            elif 225 < angle <= 315:
+                pos_x -= 1
 
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False
@@ -92,9 +92,17 @@ class FakeTropa(ITropa):
     def Turn_Left(self):        
         self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
         self.is_moving = True
-        
-        self.position.angle = (self.position.angle + self.degree_step) % 360
-        self.footprint = np.rot90(self.footprint, 1)
+        original_angle = self.position.angle
+
+        # i = 1
+        # for i in range(10):
+        #     self.Move_Forward()
+        #     self.position.angle = (self.position.angle + (90*i)) % 360
+        #     input("aasas")
+        #     #i *= -1
+
+        self.position.angle = (original_angle - self.degree_step) % 360
+        self.footprint = np.rot90(self.footprint, 3)
         self.Update_Matrix(self.position.x, self.position.y)
 
         self.is_moving = False
@@ -103,8 +111,9 @@ class FakeTropa(ITropa):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
         self.is_moving = True
 
-        self.position.angle = (self.position.angle - self.degree_step) % 360
-        self.footprint = np.rot90(self.footprint, 3)
+
+        self.position.angle = (self.position.angle + self.degree_step) % 360
+        self.footprint = np.rot90(self.footprint, 1)
         self.Update_Matrix(self.position.x, self.position.y)
 
         self.is_moving = False

@@ -15,9 +15,14 @@ CONST_180_DIV_PI = 180 / math.pi
 class Angle:
     def Get_Angle_Between_Points_CounterClock(self, position_1, position_2):
         return (
-            math.atan2(position_1[0] - position_2[0], -(position_1[1] - position_2[1]))
-            * CONST_180_DIV_PI
-        )
+            360
+            - (
+                math.atan2(
+                    position_1[0] - position_2[0], -(position_1[1] - position_2[1])
+                )
+                * CONST_180_DIV_PI
+            )
+        ) % 360
 
     def Is_Angle_In_Range(self, angle, low_t, high_t):
         if low_t < high_t:

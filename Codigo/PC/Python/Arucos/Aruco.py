@@ -41,12 +41,13 @@ class Aruco(IAruco):
 
         center = (corners.mean(axis=1)[0]).astype(int)
 
-        angle = (315 - angles.Get_Angle_Between_Points_CounterClock(center, corners[0][1])) % 360
+        front = (corners[0][0] + corners[0][1]) / 2
+
+        angle = (angles.Get_Angle_Between_Points_CounterClock(center,front)-90) % 360
 
         position = [center[0], center[1], angle]
 
         return position
-
 
 if __name__ == "__main__":
     diccionario = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
