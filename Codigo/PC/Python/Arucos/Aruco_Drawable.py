@@ -24,17 +24,21 @@ class Aruco_Drawable(Aruco, Runnable):
     video_source: IVideoSource
     video_playback: CV2ImShow_Drawable
 
+    frame_rate = 5
+    sleep_time = 0
+
     def __init__(
         self, dictionary, detector_parameters,video_source:IVideoSource, video_playback: CV2ImShow_Drawable
     ):
         self.video_source = video_source
         self.video_playback = video_playback
+        self.sleep_time = 1 / self.video_source.Get_FPS()
         super().__init__(dictionary, detector_parameters)
 
     def Run(self):
         while not self.has_to_stop:
             self.Detect_Aruco(self.video_source.Get_Frame())
-            sleep(0.0000)
+            sleep(self.sleep_time)
             self.Draw_Detected_Aruco()
         return
 

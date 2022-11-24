@@ -14,13 +14,8 @@ from Positions.Position_2D import Position_2D
 from Arucos.IAruco import IAruco
 import math
 
-
-# Pathfinding parcial : Que mire solo un par de casillas por delante
-# Espacio de configuraciones ?
-
-
-class Command_Go_To_2D_Position(ICommand_Go_To_Position):
-    threshold_angle = 15
+class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
+    threshold_angle = 45
     previous_angle = 0
     real_position = None
     topLeft = None
@@ -50,7 +45,18 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
                     self.objective_position.Get_Position(),
                 ) - 90
             ) % 360
-          
+
+
+            difference_between_previous_and_new_angle = (
+                self.angles.Get_Difference_Between_Angles(new_angle, self.previous_angle)
+            )
+
+            # Evita el efecto "Peonza"
+            if difference_between_previous_and_new_angle < self.threshold_angle:
+                new_angle = self.previous_angle
+            else:
+                self.previous_angle = new_angle
+
             self.Movement_Action(new_angle)
         else:
             print("Tropa:", self.tropa.id, "Ha llegado a su destino...")
@@ -65,7 +71,11 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             self.real_position = None
             return False
 
+
         self.real_position = Position_2D(position)
+        
+        # Fake del Angulo
+        self.real_position.angle = self.tropa.position.angle
 
         return self.Have_Reached_Objective()
 

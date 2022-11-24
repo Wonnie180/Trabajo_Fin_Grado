@@ -19,11 +19,13 @@ class WebCam(IVideoSource):
     frame = None
     has_new_frame: bool = False
 
-    def __init__(self, resolution: Resolution, number_webcam: int):
+    def __init__(self, resolution: Resolution, number_webcam: int, fps:int = 30):
         self.number_webcam = number_webcam
         self.cap = cv2.VideoCapture(self.number_webcam, cv2.CAP_DSHOW)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, resolution.Get_Width())
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, resolution.Get_Height())
+        self.fps = fps
+        self.cap.set(cv2.CAP_PROP_FPS, fps)
         super().__init__(self.resolution)
 
     def Get_Frame(self):
@@ -35,6 +37,7 @@ class WebCam(IVideoSource):
 
     def Set_FPS(self, fps):
         self.fps = fps
+        self.cap.set(cv2.CAP_PROP_FPS, fps)
 
     def Set_Resolution(self, resolution: Resolution):
         self.resolution = resolution

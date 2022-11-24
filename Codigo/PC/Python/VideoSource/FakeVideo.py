@@ -17,6 +17,7 @@ class FakeVideo(IVideoSource):
     def __init__(self, frame: Frame):
         self.frame = frame
         self.frame.AddObserver(self)
+        self.fps = 30
         super().__init__(frame.resolution)
 
     def Get_Frame(self):

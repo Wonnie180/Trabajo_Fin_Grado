@@ -13,12 +13,28 @@ from ITropa import ITropa, TROPA_ACTIONS
 from Comunicaciones.ICommunication import ICommunication
 from Color.Color import Color
 from Positions.Position_2D import Position_2D
+from Utils.Angles import Angle
+from time import sleep
+angles = Angle()
+
+
 
 class FakeTropa(ITropa):
+    time_delay = 0.01
     matrix: np.ndarray = None
     footprint: np.ndarray = None
-    degree_step = 90
+    degree_step = 45
     distance_step = 2
+    movement_change = [
+        [0, 1],  # 0 | 360
+        [-1, 1],  # 45
+        [-1, 0],  # 90
+        [-1, -1],  # 135
+        [0, -1],  # 180
+        [1, -1],  # 225
+        [1, 0],  # 270
+        [1, 1],  # 315
+    ]
 
     def __init__(
         self,
@@ -48,76 +64,101 @@ class FakeTropa(ITropa):
                 return False
         return True
 
-    def Move_Forward(self):
+    def Move_Forward(self, degree_of_movement=90):
         self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD, True)
         self.is_moving = True
-        for i in range(self.distance_step):
-            pos_y = self.position.y
-            pos_x = self.position.x
-            angle = self.position.angle
 
-            if 315 < angle <= 360 or 0 <= angle < 45:
-                pos_y += 1
-            elif 45 < angle <= 135:
-                pos_x -= 1
-            elif 135 < angle <= 225:
-                pos_y -= 1
-            elif 225 < angle <= 315:
-                pos_x += 1
+        pos_x, pos_y, angle = self.position.Get_Position()
 
+        movement = self.Get_Movement_Parameters(angle, degree_of_movement)
+
+        if movement is None:
+            self.is_moving = False
+            return
+
+        for _ in range(self.distance_step):
+            pos_x += movement[0]
+            pos_y += movement[1]
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False
 
-    def Move_Backwards(self):
-        #self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
+    def Move_Backwards(self, degree_of_movement=90):
+        self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
         self.is_moving = True
-        for i in range(self.distance_step):
 
-            pos_y = self.position.y
-            pos_x = self.position.x
-            angle = self.position.angle
+        pos_x, pos_y, angle = self.position.Get_Position()
 
-            if 315 < angle <= 360 or 0 <= angle < 45:
-                pos_y -= 1
-            elif 45 < angle <= 135:
-                pos_x += 1
-            elif 135 < angle <= 225:
-                pos_y += 1
-            elif 225 < angle <= 315:
-                pos_x -= 1
+        movement = self.Get_Movement_Parameters(angle, degree_of_movement)
 
+        if movement is None:
+            self.is_moving = False
+            return
+
+        for _ in range(self.distance_step):
+            pos_x -= movement[0]
+            pos_y -= movement[1]
             self.Update_Matrix(pos_x, pos_y)
         self.is_moving = False
 
-    def Turn_Left(self):        
+    def Turn_Left(self, forward: bool = True):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
-        self.is_moving = True
-        original_angle = self.position.angle
 
-        # i = 1
-        # for i in range(10):
-        #     self.Move_Forward()
-        #     self.position.angle = (self.position.angle + (90*i)) % 360
-        #     input("aasas")
-        #     #i *= -1
+        self.Do_Turn(1, forward)
 
-        self.position.angle = (original_angle - self.degree_step) % 360
-        self.footprint = np.rot90(self.footprint, 3)
-        self.Update_Matrix(self.position.x, self.position.y)
+        if self.position.angle % 90 == 0:
+            self.footprint = np.rot90(self.footprint, 1)
+            self.Update_Matrix(self.position.x, self.position.y)
 
         self.is_moving = False
 
-    def Turn_Right(self):
+    def Turn_Right(self, forward: bool = True):
         self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
-        self.is_moving = True
 
+        self.Do_Turn(-1, forward)
 
-        self.position.angle = (self.position.angle + self.degree_step) % 360
-        self.footprint = np.rot90(self.footprint, 1)
-        self.Update_Matrix(self.position.x, self.position.y)
+        if self.position.angle % 90 == 0:
+            self.footprint = np.rot90(self.footprint, 3)
+            self.Update_Matrix(self.position.x, self.position.y)
 
         self.is_moving = False
-    
+
+    def Do_Turn(self, angle_direction, forward: bool = True):
+        do_movement = self.Move_Forward
+
+        if not forward:
+            do_movement = self.Move_Backwards
+            angle_direction *= -1
+
+        self.is_moving = True
+
+        self.position.angle = (
+                self.position.angle - (angle_direction * (self.degree_step))
+            ) % 360
+
+        n = 1
+        for _ in range(n):
+            self.position.angle = (
+                self.position.angle + (angle_direction * (self.degree_step))
+            ) % 360
+
+            for _ in range(2*n):            
+                do_movement(45)
+
+            self.position.angle = (
+                self.position.angle + (angle_direction * (self.degree_step))
+            ) % 360
+
+            for _ in range(n):            
+                do_movement(45)
+
+            self.position.angle = (
+                self.position.angle - (2*(angle_direction * (self.degree_step)))
+            ) % 360
+
+        self.position.angle = (
+                self.position.angle + (2*(angle_direction * (self.degree_step)))
+            ) % 360
+       
 
     def Set_Color(self, color: Color):
         self.color = color
@@ -137,6 +178,28 @@ class FakeTropa(ITropa):
         ] = self.footprint
 
         self.position.Set_Position([pos_x, pos_y, self.position.angle])
+        sleep(self.time_delay)
+
+    def Get_Movement_Parameters(self, angle, degree_of_movement=45):
+
+        movement = None
+
+        angle_step = 360 // len(self.movement_change)
+        factor = angle_step / degree_of_movement
+        
+        angle_tolerance = degree_of_movement * factor
+        lower_bound = (angle - angle_tolerance)
+        high_bound = (angle + angle_tolerance) 
+
+        test_angle = (degree_of_movement * factor)
+        
+
+        for i in range(len(self.movement_change)):
+            if lower_bound < (test_angle * i % 360) <= high_bound:
+                movement = self.movement_change[i] 
+                break  
+        return movement
+
 
 if __name__ == "__main__":
     i = 0

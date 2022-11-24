@@ -19,8 +19,8 @@ from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
 from Tropas.ITropa import ITropa
-from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import (
-    Command_Go_To_2D_Position,
+from Commands.Command_Go_To_Position.Command_Go_To_2D_Position_Fake import (
+    Command_Go_To_2D_Position_Fake,
 )
 
 SeleccionarTropa: callable = None
@@ -63,7 +63,7 @@ def callback_test(event, x, y, flags, param):
         else:
             destino = Position_2D([x, y, 0])
             command_manager.Add_Command(
-                Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino)
+                Command_Go_To_2D_Position_Fake(aruco, tropa_seleccionada, destino)
             )
             tropa_seleccionada = None
 
@@ -82,7 +82,7 @@ def callback_test(event, x, y, flags, param):
 video_playback.callback = callback_test
 
 
-num_tropas = 5
+num_tropas = 4
 
 
 def no_colissions(x, y, frame, footprint):
@@ -99,8 +99,14 @@ def no_colissions(x, y, frame, footprint):
 def prepare():
     for i in range(num_tropas):
         tropa_id = aruco.Get_Current_Id()
-        random_orientation = (randrange(4)) + 1
-        footprint = cv2.cvtColor(aruco.Generate_new_Id(50), cv2.COLOR_GRAY2RGB)
+        footprint = cv2.cvtColor(
+            np.pad(
+                np.pad(
+                    aruco.Generate_new_Id(50),pad_width=7, mode='constant', constant_values=255
+                    ),pad_width=1, mode='constant', constant_values=0
+                ),\
+         cv2.COLOR_GRAY2RGB)
+
         while 1:
             random_x = randrange(resolution.Get_Width()) + footprint.shape[0]
             random_y = randrange(resolution.Get_Height()) + footprint.shape[1]
@@ -119,14 +125,8 @@ def prepare():
             matrix=common_frame.frame,
             footprint=footprint,
         )
-
-        # for j in range(tropa_id+1):
-        tropa.Turn_Left()
-        tropa.Turn_Left()
-        #tropa.Turn_Right()
-
+        tropa.Update_Matrix(tropa.position.x, tropa.position.y)
         tropas.append(tropa)
-
 
 if __name__ == "__main__":
     prepare()

@@ -12,6 +12,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".." + os.path.sep))
 from VideoSource.IVideoSource import IVideoSource
 from IVideoPlayback import IVideoPlayback
 from AbleInterfaces.Runnable import Runnable
+from time import sleep
 
 def Default_Action(video_playback):
     miliseconds_delay = 8
@@ -44,7 +45,7 @@ def click_drag_callback2(event, x, y, flags, param):
 class CV2ImShow(IVideoPlayback, Runnable):
     action: callable = None
     callback: callable = None
-
+    sleep_time = 0
     def __init__(
         self,
         title: str,
@@ -61,6 +62,8 @@ class CV2ImShow(IVideoPlayback, Runnable):
 
         if self.callback is None:
             self.callback = Default_Callback
+
+        self.sleep_time = 1 / videoSource.Get_FPS()
         super().__init__(title, videoSource)
 
     def Get_Title(self):
@@ -78,6 +81,7 @@ class CV2ImShow(IVideoPlayback, Runnable):
         while not self.has_to_stop:
             self.Draw_Frame()
             self.action(self)
+            sleep(self.sleep_time)
         self.Destroy_Window()
 
     def Stop(self):

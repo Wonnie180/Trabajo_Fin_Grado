@@ -22,10 +22,6 @@ class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
     distance: Distance = Distance()
     angles: Angle = Angle()
 
-
-
-
-
     def __init__(self,aruco: IAruco, tropa:ITropa,objective_position:IPosition, distance_threshold:int):
         self.aruco = aruco
         self.tropa = tropa
