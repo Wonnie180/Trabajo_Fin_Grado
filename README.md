@@ -1,3 +1,5 @@
+<img src="Memoria/Bot-MindHive_Logo.svg" width="200">
+
 # Trabajo_Fin_Grado
 Repositorio para el TFG UPNA (2022/2023)
 
