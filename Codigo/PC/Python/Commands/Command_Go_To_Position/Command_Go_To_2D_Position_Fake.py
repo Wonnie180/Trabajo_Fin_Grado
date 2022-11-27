@@ -15,7 +15,7 @@ from Arucos.IAruco import IAruco
 import math
 
 class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
-    threshold_angle = 45
+    threshold_angle = 30
     previous_angle = 0
     real_position = None
     topLeft = None
@@ -45,17 +45,6 @@ class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
                     self.objective_position.Get_Position(),
                 ) - 90
             ) % 360
-
-
-            difference_between_previous_and_new_angle = (
-                self.angles.Get_Difference_Between_Angles(new_angle, self.previous_angle)
-            )
-
-            # Evita el efecto "Peonza"
-            if difference_between_previous_and_new_angle < self.threshold_angle:
-                new_angle = self.previous_angle
-            else:
-                self.previous_angle = new_angle
 
             self.Movement_Action(new_angle)
         else:
