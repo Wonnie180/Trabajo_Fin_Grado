@@ -1,11 +1,11 @@
 #ifndef _Led_H
 #define _Led_H
 
+#include "../ILed.hpp"
 #include <Arduino.h>
 
-class Led {
+class Led : public ILed{
     int led_pin;
-    bool is_on;
 
 public:    
     Led(int led_pin);
