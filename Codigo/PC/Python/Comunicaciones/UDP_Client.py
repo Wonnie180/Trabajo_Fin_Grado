@@ -39,12 +39,12 @@ class UDP_Client(ICommunication):
 
 
 if __name__ == '__main__':    
-    prueba = UDP_Client("192.168.1.112", 1234)
+    prueba = UDP_Client("192.168.1.120", 1234)
     prueba.Send_Data(TROPA_ACTIONS.MOVE_FORWARD.value)
-    prueba.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD.value)
-    prueba.Send_Data(TROPA_ACTIONS.TURN_LEFT.value)
-    prueba.Send_Data(TROPA_ACTIONS.TURN_RIGHT.value)
+    #prueba.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD.value)
+    #prueba.Send_Data(TROPA_ACTIONS.TURN_LEFT.value)
+    #prueba.Send_Data(TROPA_ACTIONS.TURN_RIGHT.value)
     #prueba.Send_Data(TROPA_ACTIONS.CHANGE_COLOR.value,[255,255,255])
-    prueba.Send_Data(TROPA_ACTIONS.CHANGE_COLOR.value,[1,0,0])
+    prueba.Send_Data(TROPA_ACTIONS.CHANGE_COLOR.value,[0,0,0])
     prueba.Send_Data(TROPA_ACTIONS.CHANGE_COLOR.value+1,[0,0,0])
     #print(prueba.Get_Data())

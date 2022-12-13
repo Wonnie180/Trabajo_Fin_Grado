@@ -8,11 +8,10 @@ Tropa::Tropa(uint8_t id, ILed &_led, IMotor &_left_motor, IMotor &_right_motor) 
 // Public
 void Tropa::Move_Forward()
 {
-    this->leftMotor.ChangeSpeed(255);
-    this->rightMotor.ChangeSpeed(255);
+    this->leftMotor.ChangeSpeed(this->fullSpeed);
+    this->rightMotor.ChangeSpeed(this->fullSpeed);
 
-    unsigned long time = 1000;
-    unsigned long timeEnd = millis() + time;
+    unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
     {
@@ -25,11 +24,11 @@ void Tropa::Move_Forward()
 
 void Tropa::Move_Backwards()
 {
-    this->leftMotor.ChangeSpeed(255);
-    this->rightMotor.ChangeSpeed(255);
+    this->leftMotor.ChangeSpeed(this->fullSpeed);
+    this->rightMotor.ChangeSpeed(this->fullSpeed);
 
     unsigned long time = 1000;
-    unsigned long timeEnd = millis() + time;
+    unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
     {
@@ -42,32 +41,36 @@ void Tropa::Move_Backwards()
 
 void Tropa::Turn_Left()
 {
-    this->leftMotor.ChangeSpeed(128);
-    this->rightMotor.ChangeSpeed(255);
+    this->leftMotor.ChangeSpeed(this->reducedSpeed);
+    this->rightMotor.ChangeSpeed(this->fullSpeed);
 
     unsigned long time = 1000;
-    unsigned long timeEnd = millis() + time;
+    unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
     {
         this->leftMotor.RotateLeft();
         this->rightMotor.RotateRight();
     }
+    this->leftMotor.Stop();
+    this->rightMotor.Stop();
 }
 
 void Tropa::Turn_Right()
 {
-    this->leftMotor.ChangeSpeed(255);
-    this->rightMotor.ChangeSpeed(128);
+    this->leftMotor.ChangeSpeed(this->fullSpeed);
+    this->rightMotor.ChangeSpeed(this->reducedSpeed);
 
     unsigned long time = 1000;
-    unsigned long timeEnd = millis() + time;
+    unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
     {
         this->leftMotor.RotateLeft();
         this->rightMotor.RotateRight();
     }
+    this->leftMotor.Stop();
+    this->rightMotor.Stop();
 }
 
 void Tropa::Change_Color(uint8_t R, uint8_t G, uint8_t B)

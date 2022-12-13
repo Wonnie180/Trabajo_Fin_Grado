@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "TFG_Tropa_ESP32",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"xlocale": "cpp"
+		}
+	}
+}

@@ -12,6 +12,11 @@ public:
     void Turn_Left();
     void Turn_Right();
     void Change_Color(uint8_t R, uint8_t G, uint8_t B);        
+
+private:
+    float actionDelay = 20;
+    uint8_t fullSpeed = 192;
+    uint8_t reducedSpeed = 64;
 };
 
 #endif

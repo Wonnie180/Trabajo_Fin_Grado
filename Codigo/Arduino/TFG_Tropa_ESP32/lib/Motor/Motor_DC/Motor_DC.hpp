@@ -15,6 +15,7 @@ public:
     void RotateLeft();
     void Stop();
     void ChangeSpeed(uint8_t speed);
+
 };
 
 #endif

@@ -11,17 +11,17 @@ void ProcessUDPPacket(AsyncUDPPacket packet); // Callback
 
 // Global Variables
 // Primitive Types
-const char *ssid = "DD-WRT"; 
-const char *pass = "Sup0sitorio";
+const char *ssid = "Bot-MindHive"; 
+const char *pass = "LuisTFG2022";
 const int port = 1234;
 const uint8_t id = 1;
 const char *hostname = "Tropa_1";
 
 // Object Types
 Led led = Led(2);
-Motor_DC motor_izq = Motor_DC(15,4,5); // D15, D4, RX2 | EnableA, In1, In2
-//Motor_DC motor_Der = Motor_DC(22,27,34); // D2, TX2, D5 | EnableB, In3, In4
-Tropa tropa = Tropa(id, led, motor_izq, motor_izq);
+Motor_DC motorIzq = Motor_DC(15,4,18); // D15, D4, D18 | EnableA, In1, In2
+Motor_DC motorDer = Motor_DC(32,12,33); // D35, D32, D12 | EnableB, In3, In4
+Tropa tropa = Tropa(id, led, motorIzq, motorDer);
 WifiClient wifi = WifiClient(ssid,pass,hostname);
 UDPServer udpServer = UDPServer(port, ProcessUDPPacket);
 
@@ -33,7 +33,7 @@ void setup()
 }
 
 void loop()
-{
+{ 
 }
  
 

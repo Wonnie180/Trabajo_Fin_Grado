@@ -15,22 +15,21 @@ class Tropa(ITropa):
 
     def Move_Forward(self):
         self.is_moving = True
-        self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD, True)
+        self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD.value)
         self.is_moving = False
 
     def Move_Backwards(self):
-        self.is_moving = True
-        self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
+        self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD.value)
         self.is_moving = False
 
     def Turn_Left(self):
         self.is_moving = True
-        self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
+        self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT.value)
         self.is_moving = False
 
     def Turn_Right(self):
         self.is_moving = True
-        self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
+        self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT.value)
         self.is_moving = False
 
     def Set_Color(self, color: Color):

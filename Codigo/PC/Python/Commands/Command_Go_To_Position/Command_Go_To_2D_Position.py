@@ -10,6 +10,7 @@ sys.path.append(
 
 from ICommand_Go_To_Position import ICommand_Go_To_Position
 from Tropas.ITropa import ITropa
+from time import time
 from Positions.Position_2D import Position_2D
 from Arucos.IAruco import IAruco
 import math
@@ -20,18 +21,20 @@ import math
 
 
 class Command_Go_To_2D_Position(ICommand_Go_To_Position):
-    threshold_angle = 15
+    threshold_angle = 5
     previous_angle = 0
     real_position = None
     topLeft = None
     movement_angle = None
+    ms_delay = 10
+    timeEnd = 0
 
     def __init__(
         self,
         aruco: IAruco,
         tropa: ITropa,
         objective_position: Position_2D,
-        distance_threshold: int = 20,
+        distance_threshold: int = 75,
     ):
         if tropa.distance_step > distance_threshold:
             distance_threshold = tropa.distance_step
@@ -56,9 +59,6 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
             print("Tropa:", self.tropa.id, "Ha llegado a su destino...")
 
     def Have_Finished_Command(self) -> bool:
-        if self.tropa.Is_Moving():
-            return False
-
         position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
         
         if position is None:
@@ -103,14 +103,20 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position):
         )
 
     def Movement_Action(self, angle):
-        if self.Is_Facing_Objective(angle):
-            self.tropa.Move_Forward()
-        elif self.Is_Back_Facing_Objective(angle):
-            self.tropa.Move_Backwards()
-        elif self.Has_To_Rotate_Right(angle):
-            self.tropa.Turn_Right()
+        if (time() > self.timeEnd):
+            if self.Is_Facing_Objective(angle):
+                self.tropa.Move_Forward()
+            elif self.Is_Back_Facing_Objective(angle):
+                self.tropa.Move_Backwards()
+            elif self.Has_To_Rotate_Right(angle):
+                self.tropa.Turn_Right()
+            else:
+                self.tropa.Turn_Left()
+
+            self.timeEnd = time() + (self.ms_delay / 1000)
         else:
-            self.tropa.Turn_Left()
+            print("Faltan",self.timeEnd-time(),"milisegundos")
+            
 
 
 if __name__ == "__main__":

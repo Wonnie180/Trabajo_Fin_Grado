@@ -13,7 +13,7 @@ from Utils.Resolution import Resolution
 from Tropas.Tropa import Tropa
 from VideoSource.WebCam import WebCam
 from VideoPlayback.CV2ImShow_Drawable import CV2ImShow_Drawable
-from Comunicaciones.FakeCommunication import FakeCommunication
+from Comunicaciones.UDP_Client import UDP_Client
 from Utils.Frame import Frame
 from Positions.Position_2D import Position_2D
 from Color.Color import Color
@@ -30,7 +30,7 @@ seed(0xDEADBEEF)
 
 resolution = Resolution(1280, 720)
 
-video_source = WebCam(resolution,0)
+video_source = WebCam(resolution,2)
 video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters = cv2.aruco.DetectorParameters_create()
@@ -98,7 +98,7 @@ def prepare():
        
         tropa = Tropa(
             id=tropa_id,
-            communication=FakeCommunication(),
+            communication=UDP_Client("192.168.1.120", 1234),
             color=Color((255, 0, 0)),
         )
         tropas.append(tropa)
