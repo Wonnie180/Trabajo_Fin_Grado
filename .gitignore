@@ -38,3 +38,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 Codigo/PC/Python/VideoSource/test.py
+
+node_modules/
