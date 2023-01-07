@@ -47,8 +47,8 @@ class CommandManager(ICommandManager, Runnable):
         commands_to_add : List[ICommand] = []
         
         for command in self.executing_commands:            
-            command.Execute_Command()
-            if command.Have_Finished_Command():
+            command.Execute()
+            if command.Have_Finished():
                 commands_to_remove.append(command)
                 self.Add_Waiting_Command(commands_to_add, command)
 

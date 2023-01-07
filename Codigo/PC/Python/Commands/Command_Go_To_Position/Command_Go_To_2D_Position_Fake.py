@@ -33,8 +33,8 @@ class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
 
         super().__init__(aruco, tropa, objective_position, distance_threshold)
 
-    def Execute_Command(self):
-        if not self.Have_Finished_Command():
+    def Execute(self):
+        if not self.Have_Finished():
 
             if self.real_position is None:
                 return
@@ -50,7 +50,7 @@ class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
         else:
             print("Tropa:", self.tropa.id, "Ha llegado a su destino...")
 
-    def Have_Finished_Command(self) -> bool:
+    def Have_Finished(self) -> bool:
         if self.tropa.Is_Moving():
             return False
 

@@ -24,12 +24,12 @@ class Command_Change_Color(ICommand):
         self.color = color
         super().__init__()
 
-    def Execute_Command(self):
-        if not self.Have_Finished_Command():
+    def Execute(self):
+        if not self.Have_Finished():
             self.tropa.Set_Color(self.color.RGB)
             self.have_finished = True
 
-    def Have_Finished_Command(self) -> bool:
+    def Have_Finished(self) -> bool:
         return self.have_finished
 
     def Get_Type(self):
@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     cv2.imshow("a", frame)
     cv2.waitKey(0)
-    prueba.Execute_Command()
+    prueba.Execute()
     tropa.Update_Matrix(tropa.position.x, tropa.position.y)
     cv2.imshow("a", frame)
     cv2.waitKey(0)
