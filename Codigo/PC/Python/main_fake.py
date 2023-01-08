@@ -125,7 +125,7 @@ def prepare():
             matrix=common_frame.frame,
             footprint=footprint,
         )
-        tropa.Update_Matrix(tropa.position.x, tropa.position.y)
+        tropa.Update_Matrix(tropa.position.y, tropa.position.x)
         tropas.append(tropa)
 
 if __name__ == "__main__":
