@@ -13,14 +13,7 @@ from ICommunication import ICommunication
 
 class FakeCommunication(ICommunication):
     def __init__(self):
-        self._interface = None
         super().__init__()
-
-    def Search_Devices(self):
-        pass
-
-    def Get_Devices(self):
-        return self.devices
 
     def Send_Data(self, action: uint8, data: list[uint8]):
         self.sended_data = [action,data]

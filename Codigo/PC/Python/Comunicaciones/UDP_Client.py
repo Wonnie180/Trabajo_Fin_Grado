@@ -22,14 +22,7 @@ class UDP_Client(ICommunication):
         self.ip_address = ip_address
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self._interface = None
         super().__init__()
-
-    def Search_Devices(self):
-        pass
-
-    def Get_Devices(self):
-        return self.devices
 
     def Send_Data(self, action: uint8, data: list[uint8] =[]):
         self.socket.sendto(bytes(([action]+data)), (self.ip_address,self.port))

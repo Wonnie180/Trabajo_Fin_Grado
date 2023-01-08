@@ -20,7 +20,7 @@ class IAruco(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def Generate_new_Id(self):
+    def Generate_new_Id(self, size: int):
         pass
 
     @abstractmethod

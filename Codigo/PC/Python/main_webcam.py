@@ -1,12 +1,8 @@
 # System Libraries
 import asyncio
-import aioconsole
 import cv2
-import numpy as np
 from threading import Thread
-from ndarray_listener import ndl
-from itertools import count
-from random import randrange, seed
+from random import seed
 
 # Custom Libraries
 from Utils.Resolution import Resolution
@@ -19,14 +15,13 @@ from Positions.Position_2D import Position_2D
 from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
-from Commands.Command_Go_To_Position.Command_Go_To_2D_Position import Command_Go_To_2D_Position
+from Commands.Command_Go_To_Position.Command_Go_To_Position_2D.Command_Go_To_2D_Position import Command_Go_To_2D_Position
 
 
 tropas = []
 command_manager = CommandManager()
 
 seed(0xDEADBEEF)
-
 
 resolution = Resolution(1280, 720)
 
@@ -38,7 +33,6 @@ aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_play
 
 tropa_seleccionada = None
 destino = None
-
 
 def callback_test(event, x, y, flags, param):
     video_pb = param[0]
@@ -62,36 +56,6 @@ video_playback.callback = callback_test
 possible_orientations = [0, 90, 180, 270]
 num_tropas = 1
 
-
-
-async def ConsoleInput(tropas):
-    input_text = [""]
-    while not video_playback.Has_to_stop():
-        input_text = (await aioconsole.ainput("Comando: ")).split(" ")
-
-        command = input_text[0]
-        troop = int(input_text[1]) if len(input_text) > 1 else 0
-        reps = int(input_text[2]) if len(input_text) > 2 else 1
-
-        if command == "move_f":
-            for i in range(reps):
-                tropas[troop].Move_Forward()
-        elif command == "move_b":
-            for i in range(reps):
-                tropas[troop].Move_Backwards()
-        elif command == "turn_r":
-            for i in range(reps):
-                tropas[troop].Turn_Right()
-        elif command == "turn_l":
-            for i in range(reps):
-                tropas[troop].Turn_Left()
-    return
-
-
-
-possible_orientations = [0, 90, 180, 270]
-num_tropas = 1
-
 def prepare():
     for i in range(num_tropas):
         tropa_id = aruco.Get_Current_Id()
@@ -102,7 +66,6 @@ def prepare():
             color=Color((255, 0, 0)),
         )
         tropas.append(tropa)
-    #asyncio.run(randomMovements(tropas))
 
 
 if __name__ == "__main__":

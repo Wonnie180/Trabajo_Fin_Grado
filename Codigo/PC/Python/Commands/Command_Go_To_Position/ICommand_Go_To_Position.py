@@ -29,3 +29,5 @@ class ICommand_Go_To_Position(ICommand, metaclass=ABCMeta):
         self.distance_threshold = distance_threshold
         super().__init__()
 
+    def Have_Reached_Objective(self):
+        pass

@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABCMeta
 
 class ICommand(metaclass=ABCMeta):        
-    executing: bool = False
+    have_Finished: bool = False
 
     def __init__(self):
         super().__init__()

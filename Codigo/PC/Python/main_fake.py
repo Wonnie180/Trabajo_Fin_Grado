@@ -19,9 +19,11 @@ from Color.Color import Color
 from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
 from Tropas.ITropa import ITropa
-from Commands.Command_Go_To_Position.Command_Go_To_2D_Position_Fake import (
+from Commands.Command_Go_To_Position.Command_Go_To_Position_2D.Command_Go_To_2D_Position_Fake import (
     Command_Go_To_2D_Position_Fake,
 )
+
+num_tropas = 4
 
 SeleccionarTropa: callable = None
 
@@ -34,9 +36,6 @@ resolution = Resolution(800, 800)
 common_frame = Frame(resolution)
 tropas = []
 command_manager = CommandManager()
-
-seed(0xDEADBEEF)
-
 
 video_source = FakeVideo(common_frame)
 
@@ -71,18 +70,15 @@ def callback_test(event, x, y, flags, param):
         tropa_seleccionada = None
         destino = None
 
-    def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
-        for tropa in tropas:
-            if tropa.position.Equals(position, offset=48):
-                return tropa
+def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
+    for tropa in tropas:
+        if tropa.position.Equals(position, offset=48):
+            return tropa
 
-        return None
+    return None
 
 
 video_playback.callback = callback_test
-
-
-num_tropas = 4
 
 
 def no_colissions(x, y, frame, footprint):

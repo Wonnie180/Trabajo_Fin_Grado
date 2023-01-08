@@ -25,16 +25,6 @@ class FakeTropa(ITropa):
     footprint: np.ndarray = None
     degree_step = 45
     distance_step = 2
-    movement_change = [
-        [0, 1],  # 0 | 360
-        [-1, 1],  # 45
-        [-1, 0],  # 90
-        [-1, -1],  # 135
-        [0, -1],  # 180
-        [1, -1],  # 225
-        [1, 0],  # 270
-        [1, 1],  # 315
-    ]
 
     def __init__(
         self,
@@ -182,9 +172,19 @@ class FakeTropa(ITropa):
 
     def Get_Movement_Parameters(self, angle, degree_of_movement=45):
 
+        movement_change = [
+            [0, 1],  # 0 | 360
+            [-1, 1],  # 45
+            [-1, 0],  # 90
+            [-1, -1],  # 135
+            [0, -1],  # 180
+            [1, -1],  # 225
+            [1, 0],  # 270
+            [1, 1],  # 315
+        ]
         movement = None
 
-        angle_step = 360 // len(self.movement_change)
+        angle_step = 360 // len(movement_change)
         factor = angle_step / degree_of_movement
         
         angle_tolerance = degree_of_movement * factor
@@ -194,9 +194,9 @@ class FakeTropa(ITropa):
         test_angle = (degree_of_movement * factor)
         
 
-        for i in range(len(self.movement_change)):
+        for i in range(len(movement_change)):
             if lower_bound < (test_angle * i % 360) <= high_bound:
-                movement = self.movement_change[i] 
+                movement = movement_change[i] 
                 break  
         return movement
 

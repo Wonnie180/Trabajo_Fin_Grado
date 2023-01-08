@@ -5,32 +5,29 @@ if __name__ != "__main__":
     sys.path.append(os.path.dirname(__file__))
 
 sys.path.append(
-    os.path.join(os.path.dirname(__file__), ".." + os.path.sep + ".." + os.path.sep)
+    os.path.join(os.path.dirname(__file__), ".." + os.path.sep + ".." + os.path.sep+ ".." + os.path.sep)
 )
 
-from ICommand_Go_To_Position import ICommand_Go_To_Position
+from ICommand_Go_To_Position_2D import ICommand_Go_To_Position_2D
 from Tropas.ITropa import ITropa
+from time import time
 from Positions.Position_2D import Position_2D
 from Arucos.IAruco import IAruco
 import math
 
-class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
-    threshold_angle = 30
-    previous_angle = 0
-    real_position = None
-    topLeft = None
-    movement_angle = None
+class Command_Go_To_2D_Position(ICommand_Go_To_Position_2D):
+    threshold_angle = 5
+    ms_delay = 10
+    timeEnd = 0
 
     def __init__(
         self,
         aruco: IAruco,
         tropa: ITropa,
         objective_position: Position_2D,
-        distance_threshold: int = 20,
+        distance_threshold: int = 75,
     ):
-        if tropa.distance_step > distance_threshold:
-            distance_threshold = tropa.distance_step
-
+    
         super().__init__(aruco, tropa, objective_position, distance_threshold)
 
     def Execute(self):
@@ -45,26 +42,19 @@ class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
                     self.objective_position.Get_Position(),
                 ) - 90
             ) % 360
-
+          
             self.Movement_Action(new_angle)
         else:
             print("Tropa:", self.tropa.id, "Ha llegado a su destino...")
 
     def Have_Finished(self) -> bool:
-        if self.tropa.Is_Moving():
-            return False
-
         position = self.aruco.Get_Position_Of_Aruco(self.tropa.id)
         
         if position is None:
             self.real_position = None
             return False
 
-
         self.real_position = Position_2D(position)
-        
-        # Fake del Angulo
-        self.real_position.angle = self.tropa.position.angle
 
         return self.Have_Reached_Objective()
 
@@ -97,19 +87,24 @@ class Command_Go_To_2D_Position_Fake(ICommand_Go_To_Position):
         return (
             self.angles.Get_Difference_Between_Angles_CounterClock(
                 self.real_position.angle, angle
-            )
-            > 180
+            ) > 180
         )
 
     def Movement_Action(self, angle):
-        if self.Is_Facing_Objective(angle):
-            self.tropa.Move_Forward()
-        elif self.Is_Back_Facing_Objective(angle):
-            self.tropa.Move_Backwards()
-        elif self.Has_To_Rotate_Right(angle):
-            self.tropa.Turn_Right()
+        if (time() > self.timeEnd):
+            if self.Is_Facing_Objective(angle):
+                self.tropa.Move_Forward()
+            elif self.Is_Back_Facing_Objective(angle):
+                self.tropa.Move_Backwards()
+            elif self.Has_To_Rotate_Right(angle):
+                self.tropa.Turn_Right()
+            else:
+                self.tropa.Turn_Left()
+
+            self.timeEnd = time() + (self.ms_delay / 1000)
         else:
-            self.tropa.Turn_Left()
+            print("Faltan",self.timeEnd-time(),"milisegundos")
+            
 
 
 if __name__ == "__main__":

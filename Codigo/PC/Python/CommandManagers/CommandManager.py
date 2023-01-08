@@ -13,13 +13,14 @@ from AbleInterfaces.Runnable import Runnable
 from time import sleep 
 
 class CommandManager(ICommandManager, Runnable):
+    ms_delay: float = 0.01
     def __init__(self):
         super().__init__()
 
     def Run(self):
         while not self.has_to_stop:            
             self.Execute_Commands()            
-            sleep(0.01)
+            sleep(self.ms_delay)
 
     def Stop(self):
         self.has_to_stop = True

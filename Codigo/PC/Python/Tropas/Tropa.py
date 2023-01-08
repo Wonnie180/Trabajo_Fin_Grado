@@ -9,8 +9,6 @@ from Color.Color import Color
 from Positions.Position_2D import Position_2D
 
 class Tropa(ITropa):
-    degree_step = 45
-    distance_step = 2
     position: Position_2D = Position_2D([0,0,0])
 
     def Move_Forward(self):
