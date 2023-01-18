@@ -10,7 +10,9 @@
 	],
 	"settings": {
 		"files.associations": {
-			"xlocale": "cpp"
+			"xlocale": "cpp",
+			"xstring": "cpp",
+			"string_view": "cpp"
 		}
 	}
 }

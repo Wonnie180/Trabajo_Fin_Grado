@@ -33,22 +33,33 @@ aruco = Aruco_Drawable(dictionary, detector_parameters, video_source, video_play
 
 tropa_seleccionada = None
 destino = None
+SeleccionarTropa = any
 
 def callback_test(event, x, y, flags, param):
     video_pb = param[0]
     global tropa_seleccionada
     global destino
     
+    tropa_seleccionada = SeleccionarTropa();
+
     if event == cv2.EVENT_LBUTTONDOWN:
         if tropa_seleccionada is None:
-            tropa_seleccionada = tropas[0]
-        else:
-            destino = Position_2D([x,y,0])
-            command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+            return
+        destino = Position_2D([x,y,0])
+        command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
 
     elif event == cv2.EVENT_RBUTTONDOWN:
-        tropa_seleccionada = None
-        destino = None
+        if tropa_seleccionada is None:
+            return
+        destino = Position_2D([x,y,0])
+        command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+
+def SeleccionarTropa(tropas, position: Position_2D):
+    for tropa in tropas:
+        if tropa.position.Equals(position, offset=48):
+            return tropa
+
+    return None
 
 
 video_playback.callback = callback_test

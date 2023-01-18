@@ -11,12 +11,15 @@ public:
     void Move_Backwards();
     void Turn_Left();
     void Turn_Right();
-    void Change_Color(uint8_t R, uint8_t G, uint8_t B);        
+    void Change_Color(uint8_t R, uint8_t G, uint8_t B);   
+    void Set_MaxMiddleMinSpeeds(uint8_t max, uint8_t mid, uint8_t min);     
 
 private:
     float actionDelay = 20;
-    uint8_t fullSpeed = 192;
-    uint8_t reducedSpeed = 64;
+    uint8_t maxSpeed = 0; 
+    uint8_t middleSpeed = 0; 
+    uint8_t minSpeed = 0;
+
 };
 
 #endif

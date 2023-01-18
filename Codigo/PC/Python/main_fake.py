@@ -72,7 +72,8 @@ def callback_test(event, x, y, flags, param):
 
 def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
     for tropa in tropas:
-        if tropa.position.Equals(position, offset=48):
+        real_position = Position_2D(aruco.Get_Position_Of_Aruco(tropa.id));
+        if real_position.Equals(position, offset=48):
             return tropa
 
     return None

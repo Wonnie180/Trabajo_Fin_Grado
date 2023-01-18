@@ -8,8 +8,10 @@ Tropa::Tropa(uint8_t id, ILed &_led, IMotor &_left_motor, IMotor &_right_motor) 
 // Public
 void Tropa::Move_Forward()
 {
-    this->leftMotor.ChangeSpeed(this->fullSpeed);
-    this->rightMotor.ChangeSpeed(this->fullSpeed);
+    // this->leftMotor.ChangeSpeed(this->leftMotor.GetMaxSpeed());
+    // this->rightMotor.ChangeSpeed(this->rightMotor.GetMaxSpeed());
+    this->leftMotor.ChangeSpeed(this->maxSpeed);
+    this->rightMotor.ChangeSpeed(this->maxSpeed);
 
     unsigned long timeEnd = millis() + this->actionDelay;
 
@@ -23,11 +25,10 @@ void Tropa::Move_Forward()
 }
 
 void Tropa::Move_Backwards()
-{
-    this->leftMotor.ChangeSpeed(this->fullSpeed);
-    this->rightMotor.ChangeSpeed(this->fullSpeed);
+{    
+    this->leftMotor.ChangeSpeed(this->maxSpeed);
+    this->rightMotor.ChangeSpeed(this->maxSpeed);
 
-    unsigned long time = 1000;
     unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
@@ -41,10 +42,9 @@ void Tropa::Move_Backwards()
 
 void Tropa::Turn_Left()
 {
-    this->leftMotor.ChangeSpeed(this->reducedSpeed);
-    this->rightMotor.ChangeSpeed(this->fullSpeed);
+    this->leftMotor.ChangeSpeed(this->middleSpeed);
+    this->rightMotor.ChangeSpeed(this->maxSpeed);
 
-    unsigned long time = 1000;
     unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
@@ -58,10 +58,9 @@ void Tropa::Turn_Left()
 
 void Tropa::Turn_Right()
 {
-    this->leftMotor.ChangeSpeed(this->fullSpeed);
-    this->rightMotor.ChangeSpeed(this->reducedSpeed);
+    this->leftMotor.ChangeSpeed(this->maxSpeed);
+    this->rightMotor.ChangeSpeed(this->middleSpeed);
 
-    unsigned long time = 1000;
     unsigned long timeEnd = millis() + this->actionDelay;
 
     while (millis() < timeEnd)
@@ -86,3 +85,9 @@ void Tropa::Change_Color(uint8_t R, uint8_t G, uint8_t B)
 }
 
 // Private
+void Tropa::Set_MaxMiddleMinSpeeds(uint8_t max, uint8_t mid, uint8_t min)
+{
+    this->maxSpeed = max;
+    this->middleSpeed = mid;
+    this->minSpeed = min;
+}

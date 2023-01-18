@@ -32,6 +32,7 @@ class Aruco(IAruco):
         (self.corners, self.ids, self.rejected) = cv2.aruco.detectMarkers(
             frame, self.dictionary, parameters=self.detector_parameters
         )
+        return self.corners, self.ids, self.rejected
 
     def Get_Position_Of_Aruco(self, id):
         if self.ids is None or not id in self.ids:

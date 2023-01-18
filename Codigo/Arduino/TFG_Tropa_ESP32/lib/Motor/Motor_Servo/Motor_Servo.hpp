@@ -6,14 +6,16 @@
 #include <ESP32Servo.h>
 
 class Motor_Servo : public IMotor{
+private:
+    Servo motor;
     uint8_t pinControl;
     bool reverse = false;
-    int8_t offset = 0;
-    uint8_t speed = 1;
-    //Servo motor;
+    int offset = 0;
+    
     void InitializatePins();
-public:
-    Servo motor;
+    uint8_t CalculateAngle(bool right);
+
+public:    
     Motor_Servo(uint8_t pinControl);
     Motor_Servo(uint8_t pinControl, bool reverse);
     void setOffset(int8_t offset);
@@ -21,6 +23,10 @@ public:
     void RotateLeft();
     void Stop();
     void ChangeSpeed(uint8_t speed);
+    uint8_t GetMinSpeed();
+    uint8_t GetMaxSpeed();
+    void setMinSpeed(uint8_t minSpeed);
+    void setMaxSpeed(uint8_t maxSpeed);
 };
 
 #endif
