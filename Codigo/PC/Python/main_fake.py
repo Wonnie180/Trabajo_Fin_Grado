@@ -58,7 +58,7 @@ def callback_test(event, x, y, flags, param):
 
     if event == cv2.EVENT_LBUTTONDOWN:
         if tropa_seleccionada is None:
-            tropa_seleccionada = SeleccionarTropa(tropas, Position_2D([y, x, 0]))
+            tropa_seleccionada = SeleccionarTropa(tropas, Position_2D([x, y, 0]))
         else:
             destino = Position_2D([x, y, 0])
             command_manager.Add_Command(
@@ -71,8 +71,10 @@ def callback_test(event, x, y, flags, param):
         destino = None
 
 def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
+    print("Seleccionando tropa...")
     for tropa in tropas:
         real_position = Position_2D(aruco.Get_Position_Of_Aruco(tropa.id));
+        print(real_position.x, real_position.y," | ",position.x, position.y);
         if real_position.Equals(position, offset=48):
             return tropa
 

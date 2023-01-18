@@ -15,7 +15,7 @@ public:
     void Set_MaxMiddleMinSpeeds(uint8_t max, uint8_t mid, uint8_t min);     
 
 private:
-    float actionDelay = 20;
+    float actionDelay = 30;
     uint8_t maxSpeed = 0; 
     uint8_t middleSpeed = 0; 
     uint8_t minSpeed = 0;

@@ -20,35 +20,35 @@ int value = 0;
 const char *ssid = "Bot-MindHive";
 const char *pass = "LuisTFG2022";
 const int port = 1234;
-const uint8_t id = 2;
-const char *hostname = "Tropa_2";
+const uint8_t id = 1;
+const char *hostname = "Tropa_1";
 
 // Object Types
 Led led = Led(2);
 
 Motor_DC motorIzq = Motor_DC(15,4,18); // D15, D4, D18 | EnableA, In1, In2
-Motor_DC motorDer motorIzq= Motor_DC(32,12,33); // D35, D32, D12 | EnableB, In3, In4
-//Motor_Servo motorIzq = Motor_Servo(12);
-//Motor_Servo motorDer = Motor_Servo(4, true);
+Motor_DC motorDer = Motor_DC(32,12,33); // D35, D32, D12 | EnableB, In3, In4
+// Motor_Servo motorIzq = Motor_Servo(12);
+// Motor_Servo motorDer = Motor_Servo(4, true);
 Tropa tropa = Tropa(id, led, motorIzq, motorDer);
 WifiClient wifi = WifiClient(ssid, pass, hostname);
 UDPServer udpServer = UDPServer(port, ProcessUDPPacket);
 
 void setup()
 {
-  tropa.Set_MaxMiddleMinSpeeds(192, 164, 0);
-  //tropa.Set_MaxMiddleMinSpeeds(192, 164, 0);
+  tropa.Set_MaxMiddleMinSpeeds(192, 32, 0);
+  // tropa.Set_MaxMiddleMinSpeeds(15, 0, 0);
 
   // motorIzq.setMaxSpeed(89);
   // motorIzq.setMinSpeed(1);
   // motorDer.setMaxSpeed(89);
   // motorDer.setMinSpeed(1);
-  // motorIzq.setOffset(-9);
+  // motorIzq.setOffset(-10);
   // motorDer.setOffset(-9);
   
   Serial.begin(115200);
-  // wifi.Start();
-  // udpServer.Start();
+  wifi.Start();
+  udpServer.Start();
 }
 
 void loop()
@@ -156,6 +156,12 @@ void ExecuteCommand()
     break;
   case 12:
     motorDer.setMaxSpeed(value);
+    break;
+  case 13:
+    led.TurnOn();
+    break;
+  case 14:
+    led.TurnOff();
     break;
   default:
     Serial.println("Not_Valid_Command");

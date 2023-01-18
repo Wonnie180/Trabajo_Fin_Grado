@@ -1,5 +1,6 @@
 # System Libraries
 import asyncio
+from typing import List
 import cv2
 from threading import Thread
 from random import seed
@@ -17,6 +18,7 @@ from Arucos.Aruco_Drawable import Aruco_Drawable
 from CommandManagers.CommandManager import CommandManager
 from Commands.Command_Go_To_Position.Command_Go_To_Position_2D.Command_Go_To_2D_Position import Command_Go_To_2D_Position
 
+VERBOSE = True
 
 tropas = []
 command_manager = CommandManager()
@@ -25,7 +27,7 @@ seed(0xDEADBEEF)
 
 resolution = Resolution(1280, 720)
 
-video_source = WebCam(resolution,2)
+video_source = WebCam(resolution,0)
 video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters = cv2.aruco.DetectorParameters_create()
@@ -40,42 +42,44 @@ def callback_test(event, x, y, flags, param):
     global tropa_seleccionada
     global destino
     
-    tropa_seleccionada = SeleccionarTropa();
-
     if event == cv2.EVENT_LBUTTONDOWN:
         if tropa_seleccionada is None:
-            return
-        destino = Position_2D([x,y,0])
-        command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
-
+            tropa_seleccionada = SeleccionarTropa(tropas, Position_2D([x, y, 0]))
+            if tropa_seleccionada != None:
+                tropa_seleccionada.Set_Color(Color([255,255,255]))
+        else:
+            destino = Position_2D([x, y, 0])
+            command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+            tropa_seleccionada.Set_Color(Color([0,0,0]))
     elif event == cv2.EVENT_RBUTTONDOWN:
-        if tropa_seleccionada is None:
-            return
-        destino = Position_2D([x,y,0])
-        command_manager.Add_Command(Command_Go_To_2D_Position(aruco, tropa_seleccionada, destino))
+        tropa_seleccionada.Set_Color(Color([0,0,0]))
+        tropa_seleccionada = None
+        destino = None
 
-def SeleccionarTropa(tropas, position: Position_2D):
+def SeleccionarTropa(tropas: List[Tropa], position: Position_2D):
+    print("Seleccionando tropa...")
     for tropa in tropas:
-        if tropa.position.Equals(position, offset=48):
+        real_position = Position_2D(aruco.Get_Position_Of_Aruco(tropa.id));
+        print(real_position.x, real_position.y," | ",position.x, position.y);
+        if real_position.Equals(position, offset=48):
             return tropa
 
     return None
 
-
 video_playback.callback = callback_test
 
 possible_orientations = [0, 90, 180, 270]
-num_tropas = 1
+ips = ["192.168.1.120","192.168.1.117"]
+num_tropas = 2
 
 def prepare():
-    for i in range(num_tropas):
-        tropa_id = aruco.Get_Current_Id()
-       
+    for i in range(num_tropas):       
         tropa = Tropa(
-            id=tropa_id,
-            communication=UDP_Client("192.168.1.120", 1234),
+            id=i,
+            communication=UDP_Client(ips[i], 1234),
             color=Color((255, 0, 0)),
         )
+        tropa.verbose = VERBOSE
         tropas.append(tropa)
 
 
