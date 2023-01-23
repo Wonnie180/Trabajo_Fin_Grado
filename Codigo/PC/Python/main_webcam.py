@@ -27,7 +27,7 @@ seed(0xDEADBEEF)
 
 resolution = Resolution(1280, 720)
 
-video_source = WebCam(resolution,0)
+video_source = WebCam(resolution,1)
 video_playback = CV2ImShow_Drawable("Video TFG Luis", video_source, callback=None)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_50)
 detector_parameters = cv2.aruco.DetectorParameters_create()
@@ -59,10 +59,12 @@ def callback_test(event, x, y, flags, param):
 def SeleccionarTropa(tropas: List[Tropa], position: Position_2D):
     print("Seleccionando tropa...")
     for tropa in tropas:
-        real_position = Position_2D(aruco.Get_Position_Of_Aruco(tropa.id));
-        print(real_position.x, real_position.y," | ",position.x, position.y);
-        if real_position.Equals(position, offset=48):
-            return tropa
+        pos_aruco = aruco.Get_Position_Of_Aruco(tropa.id)
+        if pos_aruco is not None:
+            real_position = Position_2D(pos_aruco);
+            print(real_position.x, real_position.y," | ",position.x, position.y);
+            if real_position.Equals(position, offset=48):
+                return tropa
 
     return None
 
@@ -82,6 +84,7 @@ def prepare():
         tropa.verbose = VERBOSE
         tropas.append(tropa)
 
+    tropas[1].threshold_angle = 10
 
 if __name__ == "__main__":
     prepare()

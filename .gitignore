@@ -43,3 +43,8 @@ node_modules/
 Memoria/~$emoria.docx
 Memoria/~WRL3153.tmp
 Codigo/PC/Python/main_fake.py
+Memoria/Videos/*
+Memoria/*.png
+Memoria/*.webp
+Memoria/*.jpg
+Memoria/~$Presentacion.pptx

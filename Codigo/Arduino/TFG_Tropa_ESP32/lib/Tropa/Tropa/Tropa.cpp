@@ -17,8 +17,8 @@ void Tropa::Move_Forward()
 
     while (millis() < timeEnd)
     {
-        this->leftMotor.RotateLeft();
-        this->rightMotor.RotateRight();
+        this->leftMotor.RotateRight();
+        this->rightMotor.RotateLeft();
     }
     this->leftMotor.Stop();
     this->rightMotor.Stop();
@@ -33,8 +33,8 @@ void Tropa::Move_Backwards()
 
     while (millis() < timeEnd)
     {
-        this->leftMotor.RotateRight();
-        this->rightMotor.RotateLeft();
+        this->leftMotor.RotateLeft();
+        this->rightMotor.RotateRight();
     }
     this->leftMotor.Stop();
     this->rightMotor.Stop();
@@ -49,8 +49,8 @@ void Tropa::Turn_Left()
 
     while (millis() < timeEnd)
     {
-        this->leftMotor.RotateLeft();
-        this->rightMotor.RotateRight();
+        this->leftMotor.RotateRight();
+        this->rightMotor.RotateLeft();
     }
     this->leftMotor.Stop();
     this->rightMotor.Stop();
@@ -65,8 +65,8 @@ void Tropa::Turn_Right()
 
     while (millis() < timeEnd)
     {
-        this->leftMotor.RotateLeft();
-        this->rightMotor.RotateRight();
+        this->leftMotor.RotateRight();
+        this->rightMotor.RotateLeft();
     }
     this->leftMotor.Stop();
     this->rightMotor.Stop();

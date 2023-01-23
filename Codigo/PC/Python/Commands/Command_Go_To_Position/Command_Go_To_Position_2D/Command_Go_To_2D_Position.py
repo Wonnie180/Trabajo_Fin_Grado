@@ -16,7 +16,7 @@ from Arucos.IAruco import IAruco
 import math
 
 class Command_Go_To_2D_Position(ICommand_Go_To_Position_2D):
-    threshold_angle = 5
+    threshold_angle = 0
     ms_delay = 10
     timeEnd = 0
 
@@ -27,6 +27,7 @@ class Command_Go_To_2D_Position(ICommand_Go_To_Position_2D):
         objective_position: Position_2D,
         distance_threshold: int = 75,
     ):
+        self.threshold_angle = tropa.threshold_angle
     
         super().__init__(aruco, tropa, objective_position, distance_threshold)
 

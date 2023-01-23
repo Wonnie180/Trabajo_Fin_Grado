@@ -17,7 +17,6 @@ class FakeCommunication(ICommunication):
 
     def Send_Data(self, action: uint8, data: list[uint8]):
         self.sended_data = [action,data]
-        print("Enviado: Acción->",action," Datos->",data)
 
     def Get_Data(self):
         return self.received_data

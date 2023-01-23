@@ -25,6 +25,7 @@ class FakeTropa(ITropa):
     footprint: np.ndarray = None
     degree_step = 45
     distance_step = 2
+    verbose: bool = False
 
     def __init__(
         self,
@@ -55,6 +56,8 @@ class FakeTropa(ITropa):
         return True
 
     def Move_Forward(self, degree_of_movement=90):
+        if (self.verbose):
+            print(f"Tropa {self.id} --> Forward")    
         self.communication.Send_Data(TROPA_ACTIONS.MOVE_FORWARD, True)
         self.is_moving = True
 
@@ -73,6 +76,8 @@ class FakeTropa(ITropa):
         self.is_moving = False
 
     def Move_Backwards(self, degree_of_movement=90):
+        if (self.verbose):
+            print(f"Tropa {self.id} --> Backward")    
         self.communication.Send_Data(TROPA_ACTIONS.MOVE_BACKWARD, True)
         self.is_moving = True
 
@@ -91,6 +96,8 @@ class FakeTropa(ITropa):
         self.is_moving = False
 
     def Turn_Left(self, forward: bool = True):
+        if (self.verbose):
+            print(f"Tropa {self.id} --> Left")    
         self.communication.Send_Data(TROPA_ACTIONS.TURN_LEFT, True)
 
         self.Do_Turn(1, forward)
@@ -102,6 +109,8 @@ class FakeTropa(ITropa):
         self.is_moving = False
 
     def Turn_Right(self, forward: bool = True):
+        if (self.verbose):
+            print(f"Tropa {self.id} --> Right")    
         self.communication.Send_Data(TROPA_ACTIONS.TURN_RIGHT, True)
 
         self.Do_Turn(-1, forward)

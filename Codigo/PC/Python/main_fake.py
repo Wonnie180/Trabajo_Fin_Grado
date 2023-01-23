@@ -23,6 +23,9 @@ from Commands.Command_Go_To_Position.Command_Go_To_Position_2D.Command_Go_To_2D_
     Command_Go_To_2D_Position_Fake,
 )
 
+
+VERBOSE = True
+
 num_tropas = 4
 
 SeleccionarTropa: callable = None
@@ -71,10 +74,8 @@ def callback_test(event, x, y, flags, param):
         destino = None
 
 def SeleccionarTropa(tropas: List[ITropa], position: Position_2D):
-    print("Seleccionando tropa...")
     for tropa in tropas:
         real_position = Position_2D(aruco.Get_Position_Of_Aruco(tropa.id));
-        print(real_position.x, real_position.y," | ",position.x, position.y);
         if real_position.Equals(position, offset=48):
             return tropa
 
@@ -124,6 +125,7 @@ def prepare():
             matrix=common_frame.frame,
             footprint=footprint,
         )
+        tropa.verbose = VERBOSE
         tropa.Update_Matrix(tropa.position.y, tropa.position.x)
         tropas.append(tropa)
 

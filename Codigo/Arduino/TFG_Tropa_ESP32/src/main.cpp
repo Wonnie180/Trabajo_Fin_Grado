@@ -20,32 +20,33 @@ int value = 0;
 const char *ssid = "Bot-MindHive";
 const char *pass = "LuisTFG2022";
 const int port = 1234;
-const uint8_t id = 1;
-const char *hostname = "Tropa_1";
+const uint8_t id = 2;
+const char *hostname = "Tropa_2";
 
 // Object Types
 Led led = Led(2);
 
-Motor_DC motorIzq = Motor_DC(15,4,18); // D15, D4, D18 | EnableA, In1, In2
-Motor_DC motorDer = Motor_DC(32,12,33); // D35, D32, D12 | EnableB, In3, In4
-// Motor_Servo motorIzq = Motor_Servo(12);
-// Motor_Servo motorDer = Motor_Servo(4, true);
+// Motor_DC motorIzq = Motor_DC(15,4,18); // D15, D4, D18 | EnableA, In1, In2
+// Motor_DC motorDer = Motor_DC(32,12,33); // D35, D32, D12 | EnableB, In3, In4
+Motor_Servo motorIzq = Motor_Servo(4, true);
+Motor_Servo motorDer = Motor_Servo(12, true);
 Tropa tropa = Tropa(id, led, motorIzq, motorDer);
 WifiClient wifi = WifiClient(ssid, pass, hostname);
 UDPServer udpServer = UDPServer(port, ProcessUDPPacket);
 
 void setup()
 {
-  tropa.Set_MaxMiddleMinSpeeds(192, 32, 0);
-  // tropa.Set_MaxMiddleMinSpeeds(15, 0, 0);
+  // tropa.Set_MaxMiddleMinSpeeds(192, 32, 0);
+  tropa.Set_MaxMiddleMinSpeeds(16, 0, 0);
 
-  // motorIzq.setMaxSpeed(89);
-  // motorIzq.setMinSpeed(1);
-  // motorDer.setMaxSpeed(89);
-  // motorDer.setMinSpeed(1);
-  // motorIzq.setOffset(-10);
-  // motorDer.setOffset(-9);
-  
+  motorIzq.setMaxSpeed(89);
+  motorIzq.setMinSpeed(1);
+  motorDer.setMaxSpeed(89);
+  motorDer.setMinSpeed(1);
+  motorIzq.setOffset(0);
+  motorDer.setOffset(-9);
+  motorIzq.Stop();
+  motorDer.Stop();
   Serial.begin(115200);
   wifi.Start();
   udpServer.Start();
@@ -66,7 +67,6 @@ void ProcessUDPPacket(AsyncUDPPacket packet)
   case Forward:
     Serial.println("Move_Forward");
     tropa.Move_Forward();
-    break;
   case Backwards:
     Serial.println("Move_Backward");
     tropa.Move_Backwards();
@@ -102,7 +102,8 @@ void ExecuteCommand()
   {
   case Forward:
     Serial.println("Move_Forward");
-    tropa.Move_Forward();
+    for (int i = 0; i < 20; i++)
+      tropa.Move_Forward();
     break;
   case Backwards:
     Serial.println("Move_Backward");
@@ -182,7 +183,7 @@ void SerialCommand()
       inString = "";
       ExecuteCommand();
     }
-    else if (inChar >= '0' and inChar <= '9')
+    else if ((inChar >= '0' && inChar <= '9') || (inChar == '+' || inChar == '-'))
     {
       inString += inChar;
     }

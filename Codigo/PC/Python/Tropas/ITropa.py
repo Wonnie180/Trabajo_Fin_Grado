@@ -28,11 +28,13 @@ class ITropa(metaclass=ABCMeta):
     color: Color
     position: IPosition
     is_moving: bool = False
+    threshold_angle: int
 
-    def __init__(self, id: uint8, communication: ICommunication, color: Color):
+    def __init__(self, id: uint8, communication: ICommunication, color: Color, threshold_angle: int = 5):
         self.id = id
         self.communication = communication
         self.color = color
+        self.threshold_angle = threshold_angle
         super().__init__()
 
     @abstractmethod
